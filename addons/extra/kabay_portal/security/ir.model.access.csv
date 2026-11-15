@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_portal_condominium,kabay portal condominium resident,kabay_base.model_kabay_condominium,kabay_deposits.group_kabay_deposit_resident,1,0,0,0
+access_kabay_portal_building,kabay portal building resident,kabay_base.model_kabay_building,kabay_deposits.group_kabay_deposit_resident,1,0,0,0
+access_kabay_portal_apartment,kabay portal apartment resident,kabay_base.model_kabay_apartment,kabay_deposits.group_kabay_deposit_resident,1,0,0,0
+access_kabay_portal_apartment_photo,kabay portal apartment photo resident,kabay_base.model_kabay_apartment_photo,kabay_deposits.group_kabay_deposit_resident,1,0,0,0
+access_kabay_portal_financing_contract,kabay portal financing buyer,kabay_financing.model_kabay_financing_contract,kabay_deposits.group_kabay_deposit_resident,1,0,0,0
+access_kabay_portal_financing_installment,kabay portal financing installment buyer,kabay_financing.model_kabay_financing_installment,kabay_deposits.group_kabay_deposit_resident,1,0,0,0

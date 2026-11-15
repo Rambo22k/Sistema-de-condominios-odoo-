@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_notice_manager,notice manager,model_kabay_notice,kabay_base.group_kabay_manager,1,1,1,0
+access_kabay_notice_management,notice management,model_kabay_notice,kabay_base.group_kabay_management,1,0,0,0
+access_kabay_notice_finance,notice finance,model_kabay_notice,kabay_base.group_kabay_finance,1,0,0,0
+access_kabay_notice_reception,notice reception,model_kabay_notice,kabay_base.group_kabay_reception,1,0,0,0
+access_kabay_notice_maintenance,notice maintenance,model_kabay_notice,kabay_base.group_kabay_maintenance,1,0,0,0
+access_kabay_notice_portal,notice portal,model_kabay_notice,base.group_portal,1,0,0,0
+access_kabay_notice_recipient_manager,notice recipient manager,model_kabay_notice_recipient,kabay_base.group_kabay_manager,1,0,1,1
+access_kabay_notice_recipient_portal,notice recipient portal,model_kabay_notice_recipient,base.group_portal,1,0,0,0
+access_kabay_notice_read_manager,notice read manager,model_kabay_notice_read,kabay_base.group_kabay_manager,1,0,0,0
+access_kabay_notice_read_portal,notice read portal,model_kabay_notice_read,base.group_portal,1,1,1,0
+access_kabay_notice_document_manager,notice document manager,model_kabay_notice_document,kabay_base.group_kabay_manager,1,1,1,1
+access_kabay_notice_document_portal,notice document portal,model_kabay_notice_document,base.group_portal,1,0,0,0
+access_kabay_notice_residential_relation_portal,notice residential relation portal,kabay_residents.model_kabay_apartment_relation,base.group_portal,1,0,0,0

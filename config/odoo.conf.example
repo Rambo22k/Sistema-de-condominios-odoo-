@@ -1,0 +1,18 @@
+[options]
+addons_path = /usr/lib/python3/dist-packages/odoo/addons,/mnt/enterprise-addons,/mnt/extra-addons/extra
+dbfilter = ^kabay_dev$
+list_db = True
+admin_passwd = CHANGE-ME-TO-A-DIFFERENT-RANDOM-MASTER-PASSWORD
+db_host = kabay-sdc-db
+db_port = 5432
+db_user = odoo
+db_password = CHANGE-ME-USE-THE-SAME-VALUE-AS-POSTGRES_PASSWORD
+log_level = info
+db_maxconn = 64
+http_interface = 0.0.0.0
+http_port = 8069
+workers = 0
+gevent_port = 8072
+proxy_mode = False
+max_cron_threads = 2
+server_wide_modules = base,web

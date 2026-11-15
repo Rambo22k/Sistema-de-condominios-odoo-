@@ -1,0 +1,34 @@
+# Local secrets and runtime configuration
+/.env
+/.env.*
+!/.env.example
+/config/odoo.conf
+
+# Database dumps, filestores, and local runtime data
+/backups/
+/logs/
+*.dump
+*.sql
+*.tar
+*.tar.gz
+*.zip
+
+# Local scratch files
+/.codex_tmp_inspect.py
+/enterprise-addons/
+/addons/scripts/
+
+# Python caches and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Keep operational/demo audit records out of a shareable source repository.
+# Sanitized public-facing demo notes are whitelisted below.
+/docs/*
+!/docs/arquitectura.md
+!/docs/decisiones_tecnicas.md
+!/docs/guia_uso_proyecto.md
+!/docs/pendientes_demo_para_compartir.md

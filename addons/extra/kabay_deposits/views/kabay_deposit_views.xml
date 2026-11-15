@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kabay_deposit_declaration_list" model="ir.ui.view">
+        <field name="name">kabay.deposit.declaration.list</field>
+        <field name="model">kabay.deposit.declaration</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'applied'" decoration-danger="state == 'rejected'">
+                <field name="name"/><field name="deposit_date"/><field name="apartment_id"/>
+                <field name="declarant_partner_id"/><field name="amount"/><field name="currency_id"/>
+                <field name="reference"/><field name="state"/><field name="reviewer_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_kabay_deposit_declaration_search" model="ir.ui.view">
+        <field name="name">kabay.deposit.declaration.search</field>
+        <field name="model">kabay.deposit.declaration</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/><field name="apartment_id"/><field name="declarant_partner_id"/><field name="reference"/>
+                <filter name="pending" string="Pendientes" domain="[('state','in',['submitted','reviewing'])]"/>
+                <filter name="verified" string="Verificados" domain="[('state','=','verified')]"/>
+                <filter name="applied" string="Aplicados" domain="[('state','=','applied')]"/>
+            </search>
+        </field>
+    </record>
+    <record id="view_kabay_deposit_declaration_form" model="ir.ui.view">
+        <field name="name">kabay.deposit.declaration.form</field>
+        <field name="model">kabay.deposit.declaration</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start_review" type="object" string="Iniciar revisión" class="btn-primary" invisible="state != 'submitted'" groups="kabay_base.group_kabay_finance"/>
+                    <button name="action_verify_bank_line" type="object" string="Verificar movimiento" class="btn-primary" invisible="state != 'reviewing'" groups="kabay_base.group_kabay_finance"/>
+                    <button name="action_apply" type="object" string="Aplicar pago" class="btn-primary" invisible="state != 'verified'" groups="kabay_base.group_kabay_finance" confirm="Se crearán pagos mediante Accounting y se conciliará el movimiento bancario. ¿Continuar?"/>
+                    <button name="action_open_reject_wizard" type="object" string="Rechazar" invisible="state not in ('submitted','reviewing')" groups="kabay_base.group_kabay_finance"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,reviewing,verified,applied,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Declaración"><field name="declarant_partner_id"/><field name="apartment_id"/><field name="condominium_id"/><field name="company_id"/><field name="deposit_date"/><field name="amount"/><field name="currency_id"/></group>
+                        <group string="Movimiento declarado"><field name="bank_name"/><field name="reference"/><field name="destination_bank_id" groups="kabay_base.group_kabay_finance"/><field name="proof_filename" invisible="not proof_filename"/><field name="proof" filename="proof_filename" groups="kabay_base.group_kabay_finance"/><field name="statement_line_id" readonly="state != 'reviewing'" domain="[('journal_id.type','=','bank'),('company_id','=',company_id),('is_reconciled','=',False)]" groups="kabay_base.group_kabay_finance"/><field name="statement_journal_id" groups="kabay_base.group_kabay_finance"/></group>
+                    </group>
+                    <group string="Imputaciones declaradas"><field name="allocation_ids" readonly="1"><list><field name="invoice_id" groups="kabay_base.group_kabay_finance"/><field name="installment_id" groups="kabay_base.group_kabay_finance"/><field name="amount"/><field name="payment_id" groups="kabay_base.group_kabay_finance"/></list></field><field name="allocated_amount"/></group>
+                    <group><field name="resident_note"/><field name="rejection_reason" invisible="not rejection_reason"/><field name="reviewer_id"/><field name="reviewed_at"/><field name="rejected_by_id"/><field name="rejected_at"/><field name="applied_at"/></group>
+                    <chatter/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_kabay_deposit_declarations" model="ir.actions.act_window">
+        <field name="name">Declaraciones de depósitos</field><field name="res_model">kabay.deposit.declaration</field><field name="view_mode">list,form</field>
+        <field name="domain">[('company_id','in',allowed_company_ids)]</field>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+    <record id="view_kabay_deposit_reject_wizard_form" model="ir.ui.view">
+        <field name="name">kabay.deposit.reject.wizard.form</field><field name="model">kabay.deposit.reject.wizard</field>
+        <field name="arch" type="xml"><form string="Rechazar declaración"><group><field name="declaration_id"/><field name="reason" placeholder="Explique por qué no coincide el comprobante o movimiento."/></group><footer><button name="action_confirm" type="object" string="Confirmar rechazo" class="btn-primary"/><button string="Cancelar" special="cancel" class="btn-secondary"/></footer></form></field>
+    </record>
+    <menuitem id="menu_kabay_deposit_declarations" name="Depósitos declarados" parent="kabay_billing.menu_kabay_billing_root" action="action_kabay_deposit_declarations" sequence="70" groups="kabay_base.group_kabay_finance,kabay_base.group_kabay_manager,kabay_base.group_kabay_management"/>
+</odoo>

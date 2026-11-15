@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_notification_manager,kabay.notification manager,model_kabay_notification,kabay_base.group_kabay_manager,1,0,0,0
+access_kabay_notification_finance,kabay.notification finance,model_kabay_notification,kabay_base.group_kabay_finance,1,0,0,0
+access_kabay_notification_management,kabay.notification management,model_kabay_notification,kabay_base.group_kabay_management,1,0,0,0
+access_kabay_notification_settings_manager,kabay.notification.settings manager,model_kabay_notification_settings,kabay_base.group_kabay_manager,1,1,1,0
+access_kabay_notification_settings_finance,kabay.notification.settings finance,model_kabay_notification_settings,kabay_base.group_kabay_finance,1,0,0,0
+access_kabay_notification_settings_management,kabay.notification.settings management,model_kabay_notification_settings,kabay_base.group_kabay_management,1,0,0,0
+access_kabay_notification_templates_manager,mail.template Kabay manager,mail.model_mail_template,kabay_base.group_kabay_manager,1,0,0,0

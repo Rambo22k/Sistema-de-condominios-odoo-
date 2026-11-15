@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="category_maintenance" model="kabay.helpdesk.category"><field name="name">Mantenimiento</field><field name="sequence">10</field></record>
+    <record id="category_electricity" model="kabay.helpdesk.category"><field name="name">Electricidad</field><field name="sequence">20</field></record>
+    <record id="category_plumbing" model="kabay.helpdesk.category"><field name="name">Plomería</field><field name="sequence">30</field></record>
+    <record id="category_cleaning" model="kabay.helpdesk.category"><field name="name">Limpieza</field><field name="sequence">40</field></record>
+    <record id="category_security" model="kabay.helpdesk.category"><field name="name">Seguridad</field><field name="sequence">50</field></record>
+    <record id="category_noise" model="kabay.helpdesk.category"><field name="name">Ruido y convivencia</field><field name="sequence">60</field></record>
+    <record id="category_common_areas" model="kabay.helpdesk.category"><field name="name">Áreas comunes</field><field name="sequence">70</field></record>
+    <record id="category_administration" model="kabay.helpdesk.category"><field name="name">Administración</field><field name="sequence">80</field></record>
+    <record id="category_claim" model="kabay.helpdesk.category"><field name="name">Reclamaciones</field><field name="sequence">90</field></record>
+    <record id="category_other" model="kabay.helpdesk.category"><field name="name">Otros</field><field name="sequence">100</field></record>
+</odoo>

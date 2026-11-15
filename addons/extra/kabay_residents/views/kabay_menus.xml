@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_kabay_resident_relations" name="Personas / Relaciones" parent="kabay_base.menu_kabay_root" action="action_kabay_apartment_relation" sequence="40" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
+</odoo>

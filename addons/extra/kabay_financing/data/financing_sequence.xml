@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sequence_kabay_financing_contract" model="ir.sequence">
+        <field name="name">Kabay Financing Contract</field>
+        <field name="code">kabay.financing.contract</field>
+        <field name="prefix">KFC/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

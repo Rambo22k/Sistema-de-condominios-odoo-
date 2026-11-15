@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_notification_nav" inherit_id="kabay_portal.portal_nav" name="Kabay notification preferences nav">
+        <xpath expr="//nav[@class='kabay-nav']/a[@href='/my/kabay/tickets']" position="after">
+            <a href="/my/kabay/notifications/preferences">Comunicaciones</a>
+        </xpath>
+    </template>
+    <template id="portal_notification_preferences" name="Resident communication preferences">
+        <t t-call="portal.portal_layout">
+            <t t-call="kabay_portal.portal_nav">
+                <section class="kabay-page-head"><span class="kabay-eyebrow">TU CUENTA</span><h1>Preferencias de comunicaciones</h1><p>Elige qué mensajes opcionales quieres recibir por correo. Las comunicaciones operativas y contables esenciales se mantienen activas.</p></section>
+                <section class="kabay-section kabay-form-panel">
+                    <div class="kabay-alert success" t-if="saved">Tus preferencias se guardaron.</div>
+                    <div class="kabay-alert error" t-if="error" t-esc="error"/>
+                    <form method="post"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <label><input type="checkbox" name="invoice_reminders" value="1" t-att-checked="partner.kabay_notify_invoice_reminders"/> Recordatorios opcionales de facturas</label>
+                        <label><input type="checkbox" name="financing_reminders" value="1" t-att-checked="partner.kabay_notify_financing_reminders"/> Recordatorios opcionales de cuotas financiadas</label>
+                        <label><input type="checkbox" name="ticket_updates" value="1" t-att-checked="partner.kabay_notify_ticket_updates"/> Cambios y respuestas públicas en mis solicitudes</label>
+                        <label><input type="checkbox" name="notices" value="1" t-att-checked="partner.kabay_notify_notices"/> Avisos comunitarios publicados para mis unidades</label>
+                        <button class="kabay-button" type="submit">Guardar preferencias</button>
+                    </form>
+                </section>
+            </t>
+        </t>
+    </template>
+</odoo>

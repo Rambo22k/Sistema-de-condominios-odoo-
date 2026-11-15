@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_report_dashboard_manager,kabay report dashboard manager,model_kabay_report_dashboard,kabay_base.group_kabay_manager,1,1,1,1
+access_kabay_report_dashboard_finance,kabay report dashboard finance,model_kabay_report_dashboard,kabay_base.group_kabay_finance,1,1,1,1
+access_kabay_report_dashboard_management,kabay report dashboard management,model_kabay_report_dashboard,kabay_base.group_kabay_management,1,1,1,1

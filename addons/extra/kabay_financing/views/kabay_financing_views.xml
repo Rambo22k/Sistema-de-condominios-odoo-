@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kabay_financing_contract_list" model="ir.ui.view">
+        <field name="name">kabay.financing.contract.list</field><field name="model">kabay.financing.contract</field>
+        <field name="arch" type="xml"><list><field name="name"/><field name="condominium_id"/><field name="apartment_id"/><field name="buyer_id"/><field name="creditor_id"/><field name="company_id"/><field name="currency_id"/><field name="purchase_price"/><field name="financed_amount"/><field name="paid_installments"/><field name="installment_count"/><field name="state"/></list></field>
+    </record>
+    <record id="view_kabay_financing_contract_search" model="ir.ui.view">
+        <field name="name">kabay.financing.contract.search</field><field name="model">kabay.financing.contract</field>
+        <field name="arch" type="xml"><search><field name="name"/><field name="condominium_id"/><field name="apartment_id"/><field name="buyer_id"/><field name="creditor_id"/><field name="state"/><filter name="active" string="Activos" domain="[('state','=','active')]"/><filter name="suspended" string="Suspendidos" domain="[('state','=','suspended')]"/><filter name="cancelled" string="Cancelados" domain="[('state','=','cancelled')]"/></search></field>
+    </record>
+    <record id="view_kabay_financing_contract_form" model="ir.ui.view">
+        <field name="name">kabay.financing.contract.form</field><field name="model">kabay.financing.contract</field>
+        <field name="arch" type="xml"><form>
+            <header>
+                <button name="action_confirm" type="object" string="Confirmar y generar calendario" class="btn-primary" invisible="state != 'draft'" groups="kabay_base.group_kabay_manager"/>
+                <button name="action_generate_invoices" type="object" string="Generar borradores próximos" invisible="state != 'active'" groups="kabay_base.group_kabay_finance"/>
+                <button name="action_suspend" type="object" string="Suspender" invisible="state != 'active'" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+                <button name="action_resume" type="object" string="Reanudar" invisible="state != 'suspended'" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+                <button name="action_cancel" type="object" string="Cancelar contrato" invisible="state not in ('draft','active','suspended')" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance" confirm="Se conservarán las facturas ya creadas. ¿Continuar?"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,active,suspended,cancelled"/>
+            </header>
+            <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_early_settlement" type="object" class="oe_stat_button" icon="fa-calculator" groups="kabay_base.group_kabay_finance"><div class="o_stat_info"><span class="o_stat_text">Estimación liquidación</span></div></button>
+                    <button name="action_view_advance_credits" type="object" class="oe_stat_button" icon="fa-credit-card" groups="kabay_base.group_kabay_finance"><div class="o_stat_info"><span class="o_stat_text">Créditos del comprador</span></div></button>
+                </div>
+                <div class="oe_title"><h1><field name="name"/></h1></div>
+                <group><group string="Partes y propiedad"><field name="condominium_id" readonly="state != 'draft'"/><field name="building_id"/><field name="apartment_id" domain="[('condominium_id', '=', condominium_id)]" readonly="state != 'draft'"/><field name="buyer_id" readonly="state != 'draft'"/><field name="creditor_id" readonly="state != 'draft'"/><field name="company_id" readonly="state != 'draft'"/></group>
+                    <group string="Términos"><field name="currency_id" readonly="state != 'draft'"/><field name="product_id" readonly="state != 'draft'"/><field name="purchase_price" readonly="state != 'draft'"/><field name="down_payment" readonly="state != 'draft'"/><field name="financed_amount"/><field name="installment_count" readonly="state != 'draft'"/><field name="frequency" readonly="state != 'draft'"/><field name="installment_amount"/><field name="interest_rate" readonly="state != 'draft'"/><field name="interest_method" readonly="state != 'draft'"/><field name="start_date" readonly="state != 'draft'"/><field name="due_day" readonly="state != 'draft'"/><field name="invoice_lead_days" readonly="state not in ('draft','active')"/></group>
+                </group>
+                <group string="Progreso"><field name="progress_label"/><field name="total_installments"/><field name="paid_installments"/><field name="pending_installments"/><field name="overdue_installments"/><field name="partial_installments"/><field name="draft_installments"/><field name="total_paid"/><field name="account_residual"/><field name="scheduled_principal"/><field name="next_due_date"/></group>
+                <notebook>
+                    <page string="Calendario de cuotas"><field name="installment_ids" readonly="1"><list><field name="number"/><field name="due_date"/><field name="capital_amount"/><field name="interest_amount"/><field name="amount_total"/><field name="invoice_id"/><field name="amount_paid"/><field name="balance"/><field name="state"/><button name="action_generate_invoice" type="object" string="Crear borrador" icon="fa-file-text" groups="kabay_base.group_kabay_finance" invisible="state != 'scheduled'"/></list></field></page>
+                    <page string="Facturas" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"><field name="invoice_ids" readonly="1"><list><field name="name"/><field name="invoice_date"/><field name="invoice_date_due"/><field name="partner_id"/><field name="currency_id"/><field name="amount_total"/><field name="amount_residual"/><field name="payment_state"/><field name="state"/></list></field></page>
+                    <page string="Observaciones"><field name="note"/></page>
+                </notebook>
+                <chatter/>
+            </sheet>
+        </form></field>
+    </record>
+
+    <record id="view_kabay_financing_installment_list" model="ir.ui.view">
+        <field name="name">kabay.financing.installment.list</field><field name="model">kabay.financing.installment</field>
+        <field name="arch" type="xml"><list decoration-danger="state == 'overdue'" decoration-success="state == 'paid'"><field name="contract_id"/><field name="number"/><field name="due_date"/><field name="buyer_id"/><field name="apartment_id"/><field name="company_id"/><field name="currency_id"/><field name="capital_amount"/><field name="interest_amount"/><field name="amount_total"/><field name="invoice_id"/><field name="amount_paid"/><field name="balance"/><field name="state"/><button name="action_generate_invoice" type="object" string="Crear borrador" icon="fa-file-text" groups="kabay_base.group_kabay_finance" invisible="state != 'scheduled'"/></list></field>
+    </record>
+    <record id="view_kabay_financing_installment_search" model="ir.ui.view">
+        <field name="name">kabay.financing.installment.search</field><field name="model">kabay.financing.installment</field>
+        <field name="arch" type="xml"><search><field name="contract_id"/><field name="number"/><field name="buyer_id"/><field name="apartment_id"/><field name="due_date"/><field name="state"/><filter name="overdue" string="Vencidas" domain="[('state','=','overdue')]"/><filter name="partial" string="Parciales" domain="[('state','=','partial')]"/><filter name="scheduled" string="Programadas" domain="[('state','=','scheduled')]"/></search></field>
+    </record>
+    <record id="view_kabay_financing_installment_calendar" model="ir.ui.view">
+        <field name="name">kabay.financing.installment.calendar</field><field name="model">kabay.financing.installment</field>
+        <field name="arch" type="xml"><calendar string="Vencimientos de financiamiento" date_start="due_date" color="state"><field name="contract_id"/><field name="number"/><field name="buyer_id"/><field name="amount_total"/></calendar></field>
+    </record>
+    <record id="view_kabay_financing_installment_form" model="ir.ui.view">
+        <field name="name">kabay.financing.installment.form</field><field name="model">kabay.financing.installment</field>
+        <field name="arch" type="xml"><form><header><button name="action_generate_invoice" type="object" string="Generar factura borrador" class="btn-primary" invisible="state != 'scheduled'" groups="kabay_base.group_kabay_finance"/><field name="state" widget="statusbar"/></header><sheet><group><field name="contract_id"/><field name="number"/><field name="due_date"/><field name="company_id"/><field name="buyer_id"/><field name="currency_id"/><field name="capital_amount"/><field name="interest_amount"/><field name="amount_total"/><field name="invoice_id"/><field name="amount_paid"/><field name="balance"/></group></sheet></form></field>
+    </record>
+
+    <record id="action_kabay_financing_contracts" model="ir.actions.act_window"><field name="name">Contratos de compra financiada</field><field name="res_model">kabay.financing.contract</field><field name="view_mode">list,form</field></record>
+    <record id="action_kabay_financing_installments" model="ir.actions.act_window"><field name="name">Cuotas y calendarios</field><field name="res_model">kabay.financing.installment</field><field name="view_mode">list,calendar,form</field></record>
+    <record id="action_kabay_financing_invoices" model="ir.actions.act_window"><field name="name">Facturas de financiamiento</field><field name="res_model">account.move</field><field name="view_mode">list,form</field><field name="domain">[('kabay_financing_contract_id','!=',False),('move_type','=','out_invoice')]</field></record>
+
+    <record id="action_server_validate_financing_payment_group" model="ir.actions.server">
+        <field name="name">Validar cuotas para pago agrupado</field>
+        <field name="model_id" ref="model_kabay_financing_installment"/>
+        <field name="binding_model_id" ref="model_kabay_financing_installment"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_validate_payment_group()</field>
+    </record>
+
+    <menuitem id="menu_kabay_financing_root" name="Financiamiento" parent="kabay_base.menu_kabay_root" sequence="60" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+    <menuitem id="menu_kabay_financing_contracts" name="Contratos" parent="menu_kabay_financing_root" action="action_kabay_financing_contracts" sequence="10" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+    <menuitem id="menu_kabay_financing_installments" name="Cuotas" parent="menu_kabay_financing_root" action="action_kabay_financing_installments" sequence="20" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+    <menuitem id="menu_kabay_financing_invoices" name="Facturas de financiamiento" parent="menu_kabay_financing_root" action="action_kabay_financing_invoices" sequence="30" groups="kabay_base.group_kabay_finance"/>
+</odoo>

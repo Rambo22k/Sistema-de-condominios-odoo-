@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_partner_form_kabay_relations" model="ir.ui.view">
+        <field name="name">res.partner.form.kabay.relations</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="UNIDADES RELACIONADAS" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management">
+                    <div class="d-flex justify-content-end">
+                        <button name="action_add_apartment_relation" type="object" string="Vincular con unidad" class="btn-primary"/>
+                    </div>
+                    <field name="apartment_relation_ids" context="{'active_test': False}">
+                        <list decoration-muted="state == 'ended'">
+                            <field name="apartment_id"/>
+                            <field name="condominium_id"/>
+                            <field name="building_id"/>
+                            <field name="role"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="ownership_share" optional="hide"/>
+                            <field name="state"/>
+                            <button name="action_end" type="object" string="Finalizar" icon="fa-stop" invisible="state == 'ended'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

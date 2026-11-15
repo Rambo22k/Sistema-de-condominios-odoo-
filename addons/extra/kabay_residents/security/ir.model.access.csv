@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_apartment_relation_manager,apartment relation administrator,model_kabay_apartment_relation,kabay_base.group_kabay_manager,1,1,1,0
+access_kabay_apartment_relation_finance,apartment relation finance,model_kabay_apartment_relation,kabay_base.group_kabay_finance,1,0,0,0
+access_kabay_apartment_relation_reception,apartment relation reception,model_kabay_apartment_relation,kabay_base.group_kabay_reception,1,0,0,0
+access_kabay_apartment_relation_maintenance,apartment relation maintenance,model_kabay_apartment_relation,kabay_base.group_kabay_maintenance,1,0,0,0
+access_kabay_apartment_relation_management,apartment relation management,model_kabay_apartment_relation,kabay_base.group_kabay_management,1,0,0,0

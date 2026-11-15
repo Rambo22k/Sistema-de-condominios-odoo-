@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kabay_notification_list" model="ir.ui.view">
+        <field name="name">kabay.notification.list</field><field name="model">kabay.notification</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-danger="state == 'failed'" decoration-success="state == 'sent'" decoration-muted="state in ('skipped','cancelled')">
+                <field name="event_date"/><field name="name"/><field name="event_type"/><field name="company_id" groups="base.group_multi_company"/>
+                <field name="recipient_id"/><field name="source_label"/><field name="state"/><field name="attempt_count"/><field name="next_retry_at"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_kabay_notification_form" model="ir.ui.view">
+        <field name="name">kabay.notification.form</field><field name="model">kabay.notification</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header><button name="action_retry" type="object" string="Reintentar envío" class="btn-primary" invisible="state != 'failed'" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/><field name="state" widget="statusbar" statusbar_visible="pending,queued,sent,failed"/></header>
+                <sheet><group><group><field name="name"/><field name="event_type"/><field name="category"/><field name="event_date"/><field name="company_id"/><field name="recipient_id"/></group>
+                    <group><field name="source_model"/><field name="source_res_id"/><field name="source_label"/><field name="event_identifier"/><field name="attempt_count"/><field name="sent_at"/><field name="next_retry_at"/></group></group>
+                    <group string="Error de envío" invisible="not last_error"><field name="last_error" nolabel="1"/></group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_kabay_notification_search" model="ir.ui.view">
+        <field name="name">kabay.notification.search</field><field name="model">kabay.notification</field>
+        <field name="arch" type="xml"><search>
+            <field name="name"/><field name="recipient_id"/><field name="source_model"/><field name="source_res_id"/>
+            <filter name="pending" string="Pendientes" domain="[('state','=','pending')]"/>
+            <filter name="failed" string="Fallidas" domain="[('state','=','failed')]"/>
+            <filter name="sent" string="Enviadas" domain="[('state','=','sent')]"/>
+            <group><filter name="group_category" string="Categoría" context="{'group_by':'category'}"/><filter name="group_state" string="Estado" context="{'group_by':'state'}"/><filter name="group_company" string="Compañía" context="{'group_by':'company_id'}"/></group>
+        </search></field>
+    </record>
+    <record id="action_kabay_notifications" model="ir.actions.act_window">
+        <field name="name">Historial y cola</field><field name="res_model">kabay.notification</field><field name="view_mode">list,form</field><field name="search_view_id" ref="view_kabay_notification_search"/>
+    </record>
+    <record id="action_kabay_notifications_pending" model="ir.actions.act_window"><field name="name">Notificaciones pendientes</field><field name="res_model">kabay.notification</field><field name="view_mode">list,form</field><field name="domain">[('state','=','pending')]</field><field name="search_view_id" ref="view_kabay_notification_search"/></record>
+    <record id="action_kabay_notifications_failed" model="ir.actions.act_window"><field name="name">Notificaciones fallidas</field><field name="res_model">kabay.notification</field><field name="view_mode">list,form</field><field name="domain">[('state','=','failed')]</field><field name="search_view_id" ref="view_kabay_notification_search"/></record>
+    <record id="view_kabay_notification_settings_list" model="ir.ui.view">
+        <field name="name">kabay.notification.settings.list</field><field name="model">kabay.notification.settings</field>
+        <field name="arch" type="xml"><list create="0" delete="0"><field name="company_id"/><field name="active"/><field name="delivery_enabled"/><field name="smtp_ready"/><field name="max_attempts"/><field name="retry_minutes"/></list></field>
+    </record>
+    <record id="view_kabay_notification_settings_form" model="ir.ui.view">
+        <field name="name">kabay.notification.settings.form</field><field name="model">kabay.notification.settings</field>
+        <field name="arch" type="xml"><form create="0" delete="0"><sheet>
+            <div class="alert alert-warning" role="alert" invisible="smtp_ready">Odoo no tiene un servidor saliente activo para esta compañía. Configure correo en los ajustes nativos de Odoo; no se enviarán correos reales hasta que esté disponible.</div>
+            <group><group><field name="company_id" readonly="1"/><field name="active"/><field name="delivery_enabled"/><field name="smtp_ready" readonly="1"/></group>
+                <group string="Categorías"><field name="billing_enabled"/><field name="deposits_enabled"/><field name="helpdesk_enabled"/><field name="notices_enabled"/><field name="financing_enabled"/></group></group>
+            <group string="Recordatorios de vencimiento"><field name="reminder_days_before_first"/><field name="reminder_days_before_second"/><field name="reminder_days_before_due"/><field name="reminder_days_after"/></group>
+            <group string="Control de reintentos"><field name="max_attempts"/><field name="retry_minutes"/></group>
+            <group string="Plantillas nativas de correo" groups="kabay_base.group_kabay_manager"><field name="billing_template_id" options="{'no_create': True}"/><field name="deposits_template_id" options="{'no_create': True}"/><field name="helpdesk_template_id" options="{'no_create': True}"/><field name="notices_template_id" options="{'no_create': True}"/><field name="financing_template_id" options="{'no_create': True}"/></group>
+            <div class="text-muted">El remitente y las credenciales SMTP los controla la configuración estándar de Odoo. El módulo no guarda contraseñas.</div>
+        </sheet></form></field>
+    </record>
+    <record id="action_kabay_notification_settings" model="ir.actions.act_window"><field name="name">Configuración</field><field name="res_model">kabay.notification.settings</field><field name="view_mode">list,form</field><field name="domain">[('company_id','in',allowed_company_ids)]</field></record>
+    <record id="action_kabay_notification_templates" model="ir.actions.act_window"><field name="name">Plantillas Kabay</field><field name="res_model">mail.template</field><field name="view_mode">list,form</field><field name="domain">[('model','=','kabay.notification')]</field></record>
+    <menuitem id="menu_kabay_notification_settings" name="Configuración de notificaciones" parent="kabay_notices.menu_kabay_communications" action="action_kabay_notification_settings" sequence="20" groups="kabay_base.group_kabay_manager"/>
+    <menuitem id="menu_kabay_notifications" name="Historial y cola de notificaciones" parent="kabay_notices.menu_kabay_communications" action="action_kabay_notifications" sequence="30" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management"/>
+    <menuitem id="menu_kabay_notifications_pending" name="Notificaciones pendientes" parent="kabay_notices.menu_kabay_communications" action="action_kabay_notifications_pending" sequence="31" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management"/>
+    <menuitem id="menu_kabay_notifications_failed" name="Notificaciones fallidas" parent="kabay_notices.menu_kabay_communications" action="action_kabay_notifications_failed" sequence="32" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management"/>
+    <menuitem id="menu_kabay_notification_templates" name="Plantillas Kabay" parent="kabay_notices.menu_kabay_communications" action="action_kabay_notification_templates" sequence="40" groups="base.group_system"/>
+</odoo>

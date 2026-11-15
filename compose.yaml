@@ -1,0 +1,52 @@
+services:
+  kabay-sdc-odoo:
+    platform: linux/amd64
+    image: ${ODOO_IMAGE:-odoo:19.0}
+    depends_on:
+      kabay-sdc-db:
+        condition: service_healthy
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${ODOO_PORT:-18020}:8069"
+      - "${BIND_ADDRESS:-127.0.0.1}:${ODOO_EVENTED_PORT:-16020}:8072"
+    command: odoo
+    volumes:
+      - kabay-sdc-odoo-data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons:ro
+      - type: bind
+        source: ${ODOO_ENTERPRISE_ADDONS_PATH:?Set_ODOO_ENTERPRISE_ADDONS_PATH_in_.env}
+        target: /mnt/enterprise-addons
+        read_only: true
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./logs:/var/log/odoo
+    networks:
+      - kabay-sdc-net
+
+  kabay-sdc-db:
+    platform: linux/amd64
+    image: ${POSTGRES_IMAGE:-pgvector/pgvector:pg17}
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-15220}:5432"
+    volumes:
+      - kabay-sdc-postgres-data:/var/lib/postgresql/data
+      - ./postgres-config/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ./postgres-config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - kabay-sdc-net
+
+networks:
+  kabay-sdc-net:
+    driver: bridge
+
+volumes:
+  kabay-sdc-odoo-data:
+  kabay-sdc-postgres-data:

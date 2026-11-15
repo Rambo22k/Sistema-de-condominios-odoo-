@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_deposits" inherit_id="portal.portal_my_home" name="Kabay deposit portal entry">
+        <xpath expr="//div[@id='portal_common_category']" position="inside">
+            <t t-if="request.env.user.has_group('kabay_deposits.group_kabay_deposit_resident')">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal/static/src/img/portal-connection.svg'"/>
+                    <t t-set="title">Depósitos</t>
+                    <t t-set="text">Declare un depósito y consulte su revisión</t>
+                    <t t-set="url" t-value="'/my/kabay/deposits'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_deposit_list" name="Mis declaraciones de depósito">
+        <t t-call="portal.portal_layout">
+            <div class="container py-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>Mis depósitos declarados</h2>
+                    <a href="/my/kabay/deposits/new" class="btn btn-primary">Declarar depósito</a>
+                </div>
+                <div t-if="not declarations" class="alert alert-info">Aún no hay depósitos declarados.</div>
+                <div t-if="declarations" class="table-responsive">
+                    <table class="table table-hover">
+                        <thead><tr><th>Número</th><th>Fecha</th><th>Apartamento</th><th>Importe</th><th>Estado</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="declarations" t-as="declaration">
+                                <td><a t-att-href="'/my/kabay/deposits/%s' % declaration.id" t-esc="declaration.name"/></td>
+                                <td><span t-field="declaration.deposit_date"/></td><td t-esc="declaration.apartment_label"/>
+                                <td><span t-field="declaration.amount"/><span t-esc="declaration.currency_id.name" class="ms-1"/></td>
+                                <td t-esc="declaration.portal_state_label"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_deposit_form" name="Declarar depósito Kabay">
+        <t t-call="portal.portal_layout">
+            <div class="container py-3">
+                <h2>Declarar un depósito</h2>
+                <div t-if="error" class="alert alert-danger" role="alert" t-esc="error"/>
+                <form action="/my/kabay/deposits/new" method="get" class="mb-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-6">
+                            <label for="apartment_filter" class="form-label">Apartamento</label>
+                            <select id="apartment_filter" name="apartment_id" class="form-select" required="required">
+                                <option value="">Seleccione un apartamento</option>
+                                <option t-foreach="apartments" t-as="apartment" t-att-value="apartment['id']" t-att-selected="apartment['id'] == selected_apartment_id" t-esc="apartment['label']"/>
+                            </select>
+                        </div>
+                        <div class="col-auto"><button type="submit" class="btn btn-outline-primary">Mostrar facturas</button></div>
+                    </div>
+                </form>
+                <form action="/my/kabay/deposits/create" method="post" enctype="multipart/form-data" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="apartment_id" t-att-value="selected_apartment_id"/>
+                    <div class="row g-3">
+                        <div class="col-md-3"><label for="deposit_date" class="form-label">Fecha del depósito</label><input id="deposit_date" type="date" name="deposit_date" class="form-control" required="required" t-att-value="form_data.get('deposit_date')"/></div>
+                        <div class="col-md-3"><label for="amount" class="form-label">Importe</label><input id="amount" type="number" name="amount" min="0.01" step="0.01" class="form-control" required="required" t-att-value="form_data.get('amount')"/></div>
+                        <div class="col-md-6"><label for="bank_name" class="form-label">Banco de origen</label><input id="bank_name" name="bank_name" class="form-control" required="required" t-att-value="form_data.get('bank_name')"/></div>
+                        <div class="col-md-6"><label for="reference" class="form-label">Referencia / autorización</label><input id="reference" name="reference" class="form-control" required="required" t-att-value="form_data.get('reference')"/></div>
+                        <div class="col-12"><label for="proof" class="form-label">Comprobante</label><input id="proof" name="proof" type="file" class="form-control" required="required" accept="image/*,.pdf"/><div class="form-text">El comprobante no confirma el pago. Finanzas verificará el movimiento bancario.</div></div>
+                        <div class="col-12"><label for="resident_note" class="form-label">Observaciones</label><textarea id="resident_note" name="resident_note" class="form-control" rows="3" t-esc="form_data.get('resident_note', '')"/></div>
+                    </div>
+                    <h4 class="mt-4">Facturas o cuotas a cubrir</h4>
+                    <p class="text-muted">Puede distribuir el depósito entre una o varias facturas. La suma debe coincidir con el importe declarado.</p>
+                    <div t-if="not invoices and selected_apartment_id" class="alert alert-info">No hay facturas Kabay publicadas con saldo pendiente para este apartamento.</div>
+                    <div t-if="invoices" class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Seleccionar</th><th>Factura / cuota</th><th>Vence</th><th>Saldo pendiente</th><th>Importe a imputar</th></tr></thead>
+                            <tbody>
+                                <tr t-foreach="invoices" t-as="invoice">
+                                    <td><input type="checkbox" name="invoice_id" t-att-value="invoice['invoice_id']"/></td>
+                                    <td t-esc="invoice['label']"/><td t-esc="invoice['due_date']"/>
+                                    <td><span t-esc="'%.2f' % invoice['residual']"/><span t-esc="invoice['currency']" class="ms-1"/></td>
+                                    <td><input type="number" min="0.01" step="0.01" class="form-control" t-att-name="'allocation_amount_%s' % invoice['invoice_id']"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="submit" class="btn btn-primary" t-att-disabled="not invoices">Enviar declaración a Finanzas</button>
+                    <a href="/my/kabay/deposits" class="btn btn-secondary ms-2">Cancelar</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_deposit_detail" name="Detalle de declaración de depósito">
+        <t t-call="portal.portal_layout">
+            <div class="container py-3">
+                <a href="/my/kabay/deposits">← Mis depósitos</a>
+                <h2 class="mt-3"><span t-esc="declaration.name"/> — <span t-esc="declaration.portal_state_label"/></h2>
+                <div class="card"><div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Apartamento</dt><dd class="col-sm-8" t-esc="declaration.apartment_label"/>
+                        <dt class="col-sm-4">Fecha</dt><dd class="col-sm-8" t-field="declaration.deposit_date"/>
+                        <dt class="col-sm-4">Importe</dt><dd class="col-sm-8"><span t-field="declaration.amount"/><span t-esc="declaration.currency_id.name" class="ms-1"/></dd>
+                        <dt class="col-sm-4">Banco de origen</dt><dd class="col-sm-8" t-esc="declaration.bank_name"/>
+                        <dt class="col-sm-4">Referencia</dt><dd class="col-sm-8" t-esc="declaration.reference"/>
+                        <dt class="col-sm-4">Comprobante</dt><dd class="col-sm-8"><a t-att-href="'/web/content/kabay.deposit.declaration/%s/proof' % declaration.id" t-esc="declaration.proof_filename"/></dd>
+                        <dt t-if="declaration.rejection_reason" class="col-sm-4">Motivo de rechazo</dt><dd t-if="declaration.rejection_reason" class="col-sm-8" t-esc="declaration.rejection_reason"/>
+                    </dl>
+                </div></div>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kabay_notice_list" model="ir.ui.view">
+        <field name="name">kabay.notice.list</field><field name="model">kabay.notice</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'published'" decoration-muted="state in ('finished','cancelled')">
+                <field name="reference"/><field name="name"/><field name="company_id"/><field name="condominium_id"/>
+                <field name="scope"/><field name="notice_type"/><field name="priority"/><field name="publish_datetime"/>
+                <field name="expiration_datetime"/><field name="state"/>
+                <field name="recipient_count" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management"/>
+                <field name="read_count" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management"/>
+                <field name="read_percentage" widget="percentage" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_kabay_notice_search" model="ir.ui.view">
+        <field name="name">kabay.notice.search</field><field name="model">kabay.notice</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/><field name="reference"/><field name="condominium_id"/><field name="building_id"/><field name="notice_type"/>
+                <filter name="draft" string="Borradores" domain="[('state','=','draft')]"/>
+                <filter name="scheduled" string="Programados" domain="[('state','=','scheduled')]"/>
+                <filter name="published" string="Publicados" domain="[('state','=','published')]"/>
+                <filter name="urgent" string="Urgentes" domain="[('priority','=','urgent')]"/>
+                <group>
+                    <filter name="group_condominium" string="Condominio" context="{'group_by':'condominium_id'}"/>
+                    <filter name="group_state" string="Estado" context="{'group_by':'state'}"/>
+                    <filter name="group_type" string="Tipo" context="{'group_by':'notice_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="view_kabay_notice_form" model="ir.ui.view">
+        <field name="name">kabay.notice.form</field><field name="model">kabay.notice</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publish" type="object" string="Publicar ahora" class="btn-primary" invisible="state not in ('draft','scheduled')" groups="kabay_base.group_kabay_manager"/>
+                    <button name="action_schedule" type="object" string="Programar" invisible="state != 'draft'" groups="kabay_base.group_kabay_manager"/>
+                    <button name="action_finish" type="object" string="Finalizar" invisible="state != 'published'" groups="kabay_base.group_kabay_manager"/>
+                    <button name="action_cancel" type="object" string="Cancelar aviso" invisible="state not in ('scheduled','published')" groups="kabay_base.group_kabay_manager" confirm="El aviso dejará de aparecer en Portal. ¿Continuar?"/>
+                    <button name="action_reset_draft" type="object" string="Volver a borrador" invisible="state != 'cancelled' or published_at" groups="kabay_base.group_kabay_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,published,finished,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" placeholder="Título del aviso"/></h1><div><field name="reference" readonly="1"/></div></div>
+                    <group>
+                        <group string="Clasificación"><field name="company_id"/><field name="notice_type"/><field name="priority"/><field name="summary"/></group>
+                        <group string="Publicación"><field name="publish_datetime"/><field name="expiration_datetime"/><field name="published_by_id"/><field name="published_at"/><field name="create_user_id"/><field name="publication_error" invisible="not publication_error"/></group>
+                    </group>
+                    <notebook>
+                        <page string="Información general"><field name="content" widget="html"/></page>
+                        <page string="Destinatarios">
+                            <group><group><field name="scope"/><field name="target_role"/></group><group><field name="condominium_id" invisible="scope == 'company'"/><field name="building_id" invisible="scope != 'building'"/><field name="apartment_ids" widget="many2many_tags" invisible="scope != 'apartments'"/><field name="target_partner_ids" widget="many2many_tags" invisible="scope != 'contacts'"/></group></group>
+                            <group string="Fotografía histórica (solo lectura)" groups="kabay_base.group_kabay_manager"><field name="recipient_ids" readonly="1"><list><field name="partner_id"/><field name="apartment_id"/><field name="role"/></list></field></group>
+                            <group string="Estadísticas de lectura" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management"><field name="recipient_count"/><field name="read_count"/><field name="pending_count"/><field name="read_percentage" widget="percentage"/></group>
+                        </page>
+                        <page string="Archivos"><field name="document_ids" readonly="state != 'draft'"><list editable="bottom"><field name="name"/><field name="file_name"/><field name="file_data" filename="file_name" widget="binary"/></list></field></page>
+                        <page string="Lecturas" groups="kabay_base.group_kabay_manager"><field name="read_ids" readonly="1"><list><field name="partner_id"/><field name="user_id"/><field name="apartment_id"/><field name="first_read_at"/><field name="last_read_at"/></list></field></page>
+                        <page string="Historial" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management"><group><field name="cancelled_by_id"/><field name="cancelled_at"/></group></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_kabay_notice_calendar" model="ir.ui.view">
+        <field name="name">kabay.notice.calendar</field><field name="model">kabay.notice</field>
+        <field name="arch" type="xml"><calendar string="Publicaciones" date_start="publish_datetime" date_stop="expiration_datetime" color="priority"><field name="name"/><field name="state"/><field name="condominium_id"/></calendar></field>
+    </record>
+    <record id="action_kabay_notices" model="ir.actions.act_window">
+        <field name="name">Avisos</field><field name="res_model">kabay.notice</field><field name="view_mode">list,form,calendar</field>
+        <field name="search_view_id" ref="view_kabay_notice_search"/>
+    </record>
+    <menuitem id="menu_kabay_communications" name="Comunicaciones" parent="kabay_base.menu_kabay_root" sequence="60" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+    <menuitem id="menu_kabay_notices" name="Avisos" parent="menu_kabay_communications" action="action_kabay_notices" sequence="10" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+</odoo>

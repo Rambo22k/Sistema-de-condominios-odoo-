@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kabay_apartment_relation_list" model="ir.ui.view">
+        <field name="name">kabay.apartment.relation.list</field>
+        <field name="model">kabay.apartment.relation</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'ended'">
+                <field name="partner_id"/>
+                <field name="apartment_id"/>
+                <field name="condominium_id" optional="hide"/>
+                <field name="building_id" optional="hide"/>
+                <field name="role"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="ownership_share" optional="hide"/>
+                <field name="state"/>
+                <button name="action_confirm" type="object" string="Confirmar" icon="fa-check" invisible="state != 'draft'"/>
+                <button name="action_end" type="object" string="Finalizar" icon="fa-stop" invisible="state == 'ended'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_kabay_apartment_relation_form" model="ir.ui.view">
+        <field name="name">kabay.apartment.relation.form</field>
+        <field name="model">kabay.apartment.relation</field>
+        <field name="arch" type="xml">
+            <form string="Relación persona-unidad">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirmar" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_end" type="object" string="Finalizar relación" invisible="state == 'ended'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,ended"/>
+                </header>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <group>
+                        <group string="Persona y unidad">
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="apartment_id" readonly="state != 'draft'"/>
+                            <field name="condominium_id" readonly="1"/>
+                            <field name="building_id" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                        <group string="Relación e historial">
+                            <field name="role" readonly="state != 'draft'"/>
+                            <field name="date_start" readonly="state != 'draft'"/>
+                            <field name="date_end" readonly="state != 'draft'"/>
+                            <field name="ownership_share" readonly="state != 'draft'" invisible="role != 'owner'"/>
+                            <field name="is_current" readonly="1"/>
+                        </group>
+                    </group>
+                    <group><field name="notes"/></group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_kabay_apartment_relation_search" model="ir.ui.view">
+        <field name="name">kabay.apartment.relation.search</field>
+        <field name="model">kabay.apartment.relation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="apartment_id"/>
+                <field name="condominium_id"/>
+                <field name="building_id"/>
+                <filter name="current" string="Confirmadas" domain="[('state','=','confirmed')]"/>
+                <filter name="draft" string="Borrador" domain="[('state','=','draft')]"/>
+                <filter name="ended" string="Finalizadas" domain="[('state','=','ended')]"/>
+                <filter name="group_role" string="Rol" context="{'group_by':'role'}"/>
+                <filter name="group_apartment" string="Apartamento" context="{'group_by':'apartment_id'}"/>
+                <filter name="group_condominium" string="Condominio" context="{'group_by':'condominium_id'}"/>
+                <filter name="group_state" string="Estado" context="{'group_by':'state'}"/>
+            </search>
+        </field>
+    </record>
+    <record id="action_kabay_apartment_relation" model="ir.actions.act_window">
+        <field name="name">Personas y unidades</field>
+        <field name="res_model">kabay.apartment.relation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_kabay_apartment_relation_search"/>
+        <field name="context">{'active_test': False}</field>
+    </record>
+</odoo>

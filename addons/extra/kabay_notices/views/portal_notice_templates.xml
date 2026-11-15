@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_notices" inherit_id="portal.portal_my_home" name="Kabay notices portal entry">
+        <xpath expr="//div[@id='portal_common_category']" position="inside">
+            <t t-if="request.env.user.has_group('base.group_portal')">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal/static/src/img/portal-connection.svg'"/>
+                    <t t-set="title">Avisos comunitarios</t>
+                    <t t-set="text">Consulte los comunicados de sus comunidades</t>
+                    <t t-set="url" t-value="'/my/kabay/notices'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_notice_list" name="Avisos comunitarios del residente">
+        <t t-call="portal.portal_layout">
+            <div class="container py-3">
+                <h2>Avisos comunitarios</h2>
+                <form method="get" action="/my/kabay/notices" class="row g-2 mb-3">
+                    <div class="col-auto"><select name="filter" class="form-select"><option value="all" t-att-selected="filter_by == 'all'">Todos</option><option value="unread" t-att-selected="filter_by == 'unread'">No leídos</option><option value="read" t-att-selected="filter_by == 'read'">Leídos</option><option value="important" t-att-selected="filter_by == 'important'">Importantes</option><option value="urgent" t-att-selected="filter_by == 'urgent'">Urgentes</option></select></div>
+                    <div class="col-auto"><button class="btn btn-outline-primary" type="submit">Filtrar</button></div>
+                </form>
+                <div t-if="not notices" class="alert alert-info">No tiene avisos vigentes para sus relaciones residenciales.</div>
+                <div class="list-group">
+                    <a t-foreach="notices" t-as="item" t-att-href="'/my/kabay/notices/%s' % item['notice'].id" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between"><strong t-esc="item['notice'].name"/><span t-if="item['unread']" class="badge bg-primary">Nuevo</span><span t-if="not item['unread']" class="badge bg-secondary">Leído</span></div>
+                        <div class="text-muted small"><span t-esc="item['notice'].publish_datetime"/> · <span t-esc="item['type_label']"/> · <span t-esc="item['priority_label']"/></div>
+                        <p class="mb-0 mt-1" t-esc="item['notice'].summary"/>
+                    </a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_notice_detail" name="Detalle de aviso comunitario">
+        <t t-call="portal.portal_layout">
+            <div class="container py-3">
+                <a href="/my/kabay/notices">← Avisos comunitarios</a>
+                <article class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center"><h2 t-esc="notice.name"/><span t-attf-class="badge #{'bg-danger' if notice.priority == 'urgent' else ('bg-warning text-dark' if notice.priority == 'important' else 'bg-secondary')}" t-esc="notice.priority"/></div>
+                    <div class="text-muted mb-3"><span t-esc="notice.publish_datetime"/> · <span t-esc="type_label"/></div>
+                    <p class="lead" t-esc="notice.summary"/>
+                    <div class="o_kabay_notice_content" t-out="notice.content"/>
+                    <section t-if="documents" class="mt-4"><h4>Archivos adjuntos</h4><ul><li t-foreach="documents" t-as="document"><a t-att-href="'/web/content/kabay.notice.document/%s/file_data?download=true' % document.id" t-esc="document.file_name"/></li></ul></section>
+                </article>
+            </div>
+        </t>
+    </template>
+</odoo>

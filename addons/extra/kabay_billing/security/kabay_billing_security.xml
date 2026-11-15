@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kabay_base.group_kabay_finance" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+    </record>
+    <record id="rule_kabay_fee_company" model="ir.rule">
+        <field name="name">Kabay fee rules by company</field><field name="model_id" ref="model_kabay_fee_rule"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+    <record id="rule_kabay_responsibility_company" model="ir.rule">
+        <field name="name">Kabay responsibilities by company</field><field name="model_id" ref="model_kabay_payment_responsibility"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+    <record id="rule_kabay_batch_company" model="ir.rule">
+        <field name="name">Kabay batches by company</field><field name="model_id" ref="model_kabay_billing_batch"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+    <record id="rule_kabay_batch_line_company" model="ir.rule">
+        <field name="name">Kabay preview lines by company</field><field name="model_id" ref="model_kabay_billing_batch_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids + [False])]</field>
+    </record>
+</odoo>

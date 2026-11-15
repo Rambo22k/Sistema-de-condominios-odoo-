@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="kabay_base.group_kabay_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('helpdesk.group_helpdesk_manager'))]"/>
+    </record>
+    <record id="kabay_base.group_kabay_reception" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('helpdesk.group_helpdesk_user'))]"/>
+    </record>
+    <record id="kabay_base.group_kabay_maintenance" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('helpdesk.group_helpdesk_user'))]"/>
+    </record>
+
+    <record id="rule_kabay_ticket_company" model="ir.rule">
+        <field name="name">Helpdesk records: Kabay access and company boundary</field>
+        <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)] if user.has_group('kabay_base.group_kabay_manager') or user.has_group('kabay_base.group_kabay_management') or user.has_group('kabay_base.group_kabay_reception') or user.has_group('kabay_base.group_kabay_maintenance') else [('partner_id', '=', user.partner_id.id), ('kabay_apartment_id', '!=', False), ('company_id', 'in', company_ids)] if user.has_group('base.group_portal') else [('id', '=', 0)]</field>
+    </record>
+    <record id="rule_kabay_ticket_portal_own" model="ir.rule">
+        <field name="name">Kabay residents: own tickets only</field>
+        <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id), ('kabay_apartment_id', '!=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+    <record id="rule_kabay_ticket_internal_scope" model="ir.rule">
+        <field name="name">Kabay staff: tickets in allowed companies</field>
+        <field name="model_id" ref="helpdesk.model_helpdesk_ticket"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('kabay_base.group_kabay_manager')), (4, ref('kabay_base.group_kabay_management')), (4, ref('kabay_base.group_kabay_reception')), (4, ref('kabay_base.group_kabay_maintenance'))]"/>
+    </record>
+
+    <record id="rule_kabay_category_company" model="ir.rule">
+        <field name="name">Request categories: allowed companies or shared</field>
+        <field name="model_id" ref="model_kabay_helpdesk_category"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_kabay_attachment_company" model="ir.rule">
+        <field name="name">Request files: allowed companies</field>
+        <field name="model_id" ref="model_kabay_helpdesk_attachment"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_kabay_attachment_portal_own" model="ir.rule">
+        <field name="name">Residents: files from own requests only</field>
+        <field name="model_id" ref="model_kabay_helpdesk_attachment"/>
+        <field name="domain_force">[('ticket_id.partner_id', '=', user.partner_id.id), ('ticket_id.kabay_apartment_id', '!=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+    <record id="rule_kabay_relation_portal_own" model="ir.rule">
+        <field name="name">Residents: own current residential relations for tickets</field>
+        <field name="model_id" ref="kabay_residents.model_kabay_apartment_relation"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id), ('role', 'in', ['owner', 'tenant', 'authorized_resident']), ('state', '=', 'confirmed'), ('active', '=', True), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+    <record id="rule_kabay_team_portal_company" model="ir.rule">
+        <field name="name">Residents: teams in allowed companies</field>
+        <field name="model_id" ref="helpdesk.model_helpdesk_team"/>
+        <field name="domain_force">[('company_id', 'in', company_ids), ('kabay_resident_team', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+    <record id="rule_kabay_team_internal_scope" model="ir.rule">
+        <field name="name">Helpdesk teams: authorized Kabay roles only</field>
+        <field name="model_id" ref="helpdesk.model_helpdesk_team"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)] if user.has_group('kabay_base.group_kabay_manager') or user.has_group('kabay_base.group_kabay_management') or user.has_group('kabay_base.group_kabay_reception') or user.has_group('kabay_base.group_kabay_maintenance') else [('company_id', 'in', company_ids), ('kabay_resident_team', '=', True)] if user.has_group('base.group_portal') else [('id', '=', 0)]</field>
+    </record>
+    <record id="rule_kabay_apartment_portal_current_relation" model="ir.rule">
+        <field name="name">Residents: apartments with own active relationship</field>
+        <field name="model_id" ref="kabay_base.model_kabay_apartment"/>
+        <field name="domain_force">[('relation_ids.partner_id', '=', user.partner_id.id), ('relation_ids.role', 'in', ['owner', 'tenant', 'authorized_resident']), ('relation_ids.state', '=', 'confirmed'), ('relation_ids.active', '=', True), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+</odoo>

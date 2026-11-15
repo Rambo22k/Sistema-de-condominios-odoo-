@@ -1,0 +1,21 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_condominium_manager,kabay.condominium administrator,model_kabay_condominium,group_kabay_manager,1,1,1,0
+access_kabay_condominium_finance,kabay.condominium finance,model_kabay_condominium,group_kabay_finance,1,0,0,0
+access_kabay_condominium_reception,kabay.condominium reception,model_kabay_condominium,group_kabay_reception,1,0,0,0
+access_kabay_condominium_maintenance,kabay.condominium maintenance,model_kabay_condominium,group_kabay_maintenance,1,0,0,0
+access_kabay_condominium_management,kabay.condominium management,model_kabay_condominium,group_kabay_management,1,0,0,0
+access_kabay_building_manager,kabay.building administrator,model_kabay_building,group_kabay_manager,1,1,1,0
+access_kabay_building_finance,kabay.building finance,model_kabay_building,group_kabay_finance,1,0,0,0
+access_kabay_building_reception,kabay.building reception,model_kabay_building,group_kabay_reception,1,0,0,0
+access_kabay_building_maintenance,kabay.building maintenance,model_kabay_building,group_kabay_maintenance,1,0,0,0
+access_kabay_building_management,kabay.building management,model_kabay_building,group_kabay_management,1,0,0,0
+access_kabay_apartment_manager,kabay.apartment administrator,model_kabay_apartment,group_kabay_manager,1,1,1,0
+access_kabay_apartment_finance,kabay.apartment finance,model_kabay_apartment,group_kabay_finance,1,0,0,0
+access_kabay_apartment_reception,kabay.apartment reception,model_kabay_apartment,group_kabay_reception,1,0,0,0
+access_kabay_apartment_maintenance,kabay.apartment maintenance,model_kabay_apartment,group_kabay_maintenance,1,0,0,0
+access_kabay_apartment_management,kabay.apartment management,model_kabay_apartment,group_kabay_management,1,0,0,0
+access_kabay_apartment_photo_manager,kabay.apartment.photo administrator,model_kabay_apartment_photo,group_kabay_manager,1,1,1,0
+access_kabay_apartment_photo_finance,kabay.apartment.photo finance,model_kabay_apartment_photo,group_kabay_finance,1,0,0,0
+access_kabay_apartment_photo_reception,kabay.apartment.photo reception,model_kabay_apartment_photo,group_kabay_reception,1,0,0,0
+access_kabay_apartment_photo_maintenance,kabay.apartment.photo maintenance,model_kabay_apartment_photo,group_kabay_maintenance,1,0,0,0
+access_kabay_apartment_photo_management,kabay.apartment.photo management,model_kabay_apartment_photo,group_kabay_management,1,0,0,0

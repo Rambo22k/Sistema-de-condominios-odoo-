@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_kabay_report_dashboard_form" model="ir.ui.view">
+    <field name="name">kabay.report.dashboard.form</field>
+    <field name="model">kabay.report.dashboard</field>
+    <field name="arch" type="xml">
+      <form string="Kabay Reports" delete="false">
+        <sheet>
+          <group string="Alcance">
+            <field name="company_id"/>
+            <field name="condominium_id"/>
+            <field name="building_id"/>
+            <field name="apartment_id"/>
+            <field name="date_from"/><field name="date_to"/>
+          </group>
+          <separator string="Estructura y residentes"/>
+          <group col="4">
+            <field name="condominium_count" readonly="1"/><field name="building_count" readonly="1"/>
+            <field name="apartment_count" readonly="1"/><field name="occupied_count" readonly="1"/>
+            <field name="without_current_relation_count" readonly="1"/><field name="owner_count" readonly="1"/>
+            <field name="tenant_count" readonly="1"/><field name="authorized_resident_count" readonly="1"/>
+          </group>
+          <separator string="Finanzas y cuentas por cobrar" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+          <group col="4" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance">
+            <field name="currency_id" readonly="1"/><field name="invoiced_total" readonly="1"/>
+            <field name="collected_total" readonly="1"/><field name="receivable_total" readonly="1"/>
+            <field name="overdue_total" readonly="1"/><field name="overdue_invoice_count" readonly="1"/>
+            <field name="receivable_1_30" readonly="1"/><field name="receivable_31_60" readonly="1"/>
+            <field name="receivable_61_90" readonly="1"/><field name="receivable_over_90" readonly="1"/>
+            <field name="open_invoice_count" readonly="1"/>
+            <field name="paid_invoice_count" readonly="1"/><field name="credit_note_total" readonly="1"/>
+            <field name="reconciled_payment_count" readonly="1"/>
+          </group>
+          <div class="oe_button_box" name="button_box" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance">
+            <button name="action_open_invoices" type="object" string="Facturas Kabay" class="oe_stat_button" icon="fa-file-text-o"/>
+            <button name="action_open_receivables" type="object" string="Cuentas por cobrar" class="oe_stat_button" icon="fa-money"/>
+            <button name="action_open_payments" type="object" string="Cobros conciliados" class="oe_stat_button" icon="fa-check"/>
+          </div>
+          <separator string="Financiamientos" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+          <group col="3" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance">
+            <field name="active_contract_count" readonly="1"/><field name="financed_total" readonly="1"/>
+            <field name="capital_pending_total" readonly="1"/><field name="installment_count" readonly="1"/>
+            <field name="paid_installment_count" readonly="1"/><field name="overdue_installment_count" readonly="1"/>
+          </group>
+          <separator string="Operaciones"/>
+          <group col="3">
+            <field name="open_ticket_count" readonly="1"/><field name="in_progress_ticket_count" readonly="1"/>
+            <field name="resolved_ticket_count" readonly="1"/><field name="cancelled_ticket_count" readonly="1"/>
+            <field name="published_notice_count" readonly="1"/><field name="pending_notice_count" readonly="1"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="action_kabay_report_dashboard" model="ir.actions.act_window">
+    <field name="name">Panel de control</field><field name="res_model">kabay.report.dashboard</field>
+    <field name="view_mode">form</field><field name="target">current</field>
+    <field name="context">{'default_company_id': allowed_company_ids[0]}</field>
+  </record>
+  <record id="action_kabay_report_kabay_invoices" model="ir.actions.act_window">
+    <field name="name">Facturación Kabay</field><field name="res_model">account.move</field>
+    <field name="view_mode">list,pivot,graph,form</field>
+    <field name="domain">[('state', '=', 'posted'), ('move_type', 'in', ['out_invoice', 'out_refund']), '|', '|', ('kabay_condominium_id', '!=', False), ('kabay_apartment_id', '!=', False), ('kabay_financing_apartment_id', '!=', False)]</field>
+  </record>
+  <record id="action_kabay_report_kabay_receivables" model="ir.actions.act_window">
+    <field name="name">Cuentas por cobrar Kabay</field><field name="res_model">account.move</field>
+    <field name="view_mode">list,pivot,graph,form</field>
+    <field name="domain">[('state', '=', 'posted'), ('move_type', '=', 'out_invoice'), ('amount_residual', '>', 0), '|', '|', ('kabay_condominium_id', '!=', False), ('kabay_apartment_id', '!=', False), ('kabay_financing_apartment_id', '!=', False)]</field>
+  </record>
+  <record id="view_kabay_report_move_pivot" model="ir.ui.view">
+    <field name="name">account.move.kabay.report.pivot</field><field name="model">account.move</field>
+    <field name="arch" type="xml"><pivot string="Facturación Kabay">
+      <field name="invoice_date" type="row" interval="month"/>
+      <field name="kabay_condominium_id" type="row"/>
+      <field name="kabay_apartment_id" type="row"/>
+      <field name="amount_total_signed" type="measure"/>
+      <field name="amount_residual_signed" type="measure"/>
+    </pivot></field>
+  </record>
+  <record id="view_kabay_report_move_list" model="ir.ui.view">
+    <field name="name">account.move.kabay.report.list</field><field name="model">account.move</field>
+    <field name="arch" type="xml"><list string="Facturación Kabay">
+      <field name="name"/><field name="invoice_date"/><field name="invoice_date_due"/>
+      <field name="kabay_condominium_id"/><field name="kabay_apartment_id"/>
+      <field name="kabay_financing_apartment_id"/><field name="kabay_responsible_id"/><field name="partner_id"/>
+      <field name="amount_total"/><field name="amount_residual"/><field name="payment_state"/>
+      <field name="company_id"/><field name="currency_id"/>
+    </list></field>
+  </record>
+  <record id="view_kabay_report_move_graph" model="ir.ui.view">
+    <field name="name">account.move.kabay.report.graph</field><field name="model">account.move</field>
+    <field name="arch" type="xml"><graph string="Facturación Kabay por mes" type="bar">
+      <field name="invoice_date" interval="month" type="row"/>
+      <field name="amount_total_signed" type="measure"/>
+    </graph></field>
+  </record>
+  <record id="view_kabay_report_receivable_pivot" model="ir.ui.view">
+    <field name="name">account.move.kabay.receivable.pivot</field><field name="model">account.move</field>
+    <field name="arch" type="xml"><pivot string="Cuentas por cobrar Kabay">
+      <field name="kabay_condominium_id" type="row"/><field name="kabay_apartment_id" type="row"/>
+      <field name="partner_id" type="row"/><field name="amount_residual_signed" type="measure"/>
+    </pivot></field>
+  </record>
+  <record id="view_kabay_report_receivable_graph" model="ir.ui.view">
+    <field name="name">account.move.kabay.receivable.graph</field><field name="model">account.move</field>
+    <field name="arch" type="xml"><graph string="Saldo pendiente por vencimiento" type="bar">
+      <field name="invoice_date_due" interval="month" type="row"/><field name="amount_residual_signed" type="measure"/>
+    </graph></field>
+  </record>
+  <record id="action_kabay_invoice_list_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="1"/><field name="view_mode">list</field><field name="view_id" ref="view_kabay_report_move_list"/><field name="act_window_id" ref="action_kabay_report_kabay_invoices"/>
+  </record>
+  <record id="action_kabay_invoice_pivot_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="2"/><field name="view_mode">pivot</field><field name="view_id" ref="view_kabay_report_move_pivot"/><field name="act_window_id" ref="action_kabay_report_kabay_invoices"/>
+  </record>
+  <record id="action_kabay_invoice_graph_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="3"/><field name="view_mode">graph</field><field name="view_id" ref="view_kabay_report_move_graph"/><field name="act_window_id" ref="action_kabay_report_kabay_invoices"/>
+  </record>
+  <record id="action_kabay_receivable_pivot_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="2"/><field name="view_mode">pivot</field><field name="view_id" ref="view_kabay_report_receivable_pivot"/><field name="act_window_id" ref="action_kabay_report_kabay_receivables"/>
+  </record>
+  <record id="action_kabay_receivable_graph_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="3"/><field name="view_mode">graph</field><field name="view_id" ref="view_kabay_report_receivable_graph"/><field name="act_window_id" ref="action_kabay_report_kabay_receivables"/>
+  </record>
+  <record id="action_kabay_report_apartments" model="ir.actions.act_window">
+    <field name="name">Apartamentos y relación vigente</field><field name="res_model">kabay.apartment</field>
+    <field name="view_mode">list,form</field><field name="domain">[('active', '=', True)]</field>
+  </record>
+  <record id="action_kabay_report_relations" model="ir.actions.act_window">
+    <field name="name">Historial de relaciones</field><field name="res_model">kabay.apartment.relation</field><field name="view_mode">list,form</field>
+  </record>
+  <record id="action_kabay_report_tickets" model="ir.actions.act_window">
+    <field name="name">Solicitudes y mantenimiento</field><field name="res_model">helpdesk.ticket</field><field name="view_mode">list,kanban,form</field><field name="domain">[('kabay_apartment_id', '!=', False)]</field>
+  </record>
+  <record id="action_kabay_report_notices" model="ir.actions.act_window">
+    <field name="name">Avisos comunitarios</field><field name="res_model">kabay.notice</field><field name="view_mode">list,form</field>
+  </record>
+  <record id="action_kabay_report_deposits" model="ir.actions.act_window">
+    <field name="name">Depósitos declarados</field><field name="res_model">kabay.deposit.declaration</field><field name="view_mode">list,form</field>
+  </record>
+  <record id="action_kabay_report_financing" model="ir.actions.act_window">
+    <field name="name">Contratos de financiamiento</field><field name="res_model">kabay.financing.contract</field><field name="view_mode">list,pivot,graph,form</field>
+  </record>
+  <record id="action_kabay_report_installments" model="ir.actions.act_window">
+    <field name="name">Cuotas de financiamiento</field><field name="res_model">kabay.financing.installment</field><field name="view_mode">list,pivot,graph,form</field>
+  </record>
+  <record id="view_kabay_financing_report_pivot" model="ir.ui.view">
+    <field name="name">kabay.financing.contract.report.pivot</field><field name="model">kabay.financing.contract</field>
+    <field name="arch" type="xml"><pivot string="Contratos de financiamiento">
+      <field name="company_id" type="row"/><field name="condominium_id" type="row"/>
+      <field name="state" type="col"/><field name="financed_amount" type="measure"/>
+    </pivot></field>
+  </record>
+  <record id="view_kabay_financing_report_graph" model="ir.ui.view">
+    <field name="name">kabay.financing.contract.report.graph</field><field name="model">kabay.financing.contract</field>
+    <field name="arch" type="xml"><graph string="Capital financiado por fecha" type="bar">
+      <field name="start_date" interval="month" type="row"/><field name="financed_amount" type="measure"/>
+    </graph></field>
+  </record>
+  <record id="view_kabay_installment_report_pivot" model="ir.ui.view">
+    <field name="name">kabay.financing.installment.report.pivot</field><field name="model">kabay.financing.installment</field>
+    <field name="arch" type="xml"><pivot string="Cuotas programadas">
+      <field name="due_date" type="row" interval="month"/><field name="condominium_id" type="row"/>
+      <field name="apartment_id" type="row"/><field name="amount_total" type="measure"/>
+    </pivot></field>
+  </record>
+  <record id="view_kabay_installment_report_graph" model="ir.ui.view">
+    <field name="name">kabay.financing.installment.report.graph</field><field name="model">kabay.financing.installment</field>
+    <field name="arch" type="xml"><graph string="Cuotas generadas por vencimiento" type="bar">
+      <field name="due_date" interval="month" type="row"/><field name="amount_total" type="measure"/>
+    </graph></field>
+  </record>
+  <record id="action_kabay_financing_pivot_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="2"/><field name="view_mode">pivot</field><field name="view_id" ref="view_kabay_financing_report_pivot"/><field name="act_window_id" ref="action_kabay_report_financing"/>
+  </record>
+  <record id="action_kabay_financing_graph_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="3"/><field name="view_mode">graph</field><field name="view_id" ref="view_kabay_financing_report_graph"/><field name="act_window_id" ref="action_kabay_report_financing"/>
+  </record>
+  <record id="action_kabay_installment_pivot_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="2"/><field name="view_mode">pivot</field><field name="view_id" ref="view_kabay_installment_report_pivot"/><field name="act_window_id" ref="action_kabay_report_installments"/>
+  </record>
+  <record id="action_kabay_installment_graph_view" model="ir.actions.act_window.view">
+    <field name="sequence" eval="3"/><field name="view_mode">graph</field><field name="view_id" ref="view_kabay_installment_report_graph"/><field name="act_window_id" ref="action_kabay_report_installments"/>
+  </record>
+
+  <menuitem id="menu_kabay_reports_root" name="Reportes y estadísticas" parent="kabay_base.menu_kabay_root" sequence="80" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+  <menuitem id="menu_kabay_reports_dashboard" name="Panel de control" parent="menu_kabay_reports_root" action="action_kabay_report_dashboard" sequence="1" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_management"/>
+  <menuitem id="menu_kabay_reports_finance" name="Facturación Kabay" parent="menu_kabay_reports_root" action="action_kabay_report_kabay_invoices" sequence="10" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+  <menuitem id="menu_kabay_reports_receivable" name="Cuentas por cobrar" parent="menu_kabay_reports_root" action="action_kabay_report_kabay_receivables" sequence="11" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+  <menuitem id="menu_kabay_reports_financing" name="Financiamientos" parent="menu_kabay_reports_root" action="action_kabay_report_financing" sequence="20" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+  <menuitem id="menu_kabay_reports_installments" name="Cuotas" parent="menu_kabay_reports_root" action="action_kabay_report_installments" sequence="21" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+  <menuitem id="menu_kabay_reports_deposits" name="Depósitos declarados" parent="menu_kabay_reports_root" action="action_kabay_report_deposits" sequence="22" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance"/>
+  <menuitem id="menu_kabay_reports_apartments" name="Apartamentos" parent="menu_kabay_reports_root" action="action_kabay_report_apartments" sequence="30" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+  <menuitem id="menu_kabay_reports_relations" name="Historial de relaciones" parent="menu_kabay_reports_root" action="action_kabay_report_relations" sequence="31" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_reception"/>
+  <menuitem id="menu_kabay_reports_tickets" name="Solicitudes" parent="menu_kabay_reports_root" action="action_kabay_report_tickets" sequence="32" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+  <menuitem id="menu_kabay_reports_notices" name="Avisos" parent="menu_kabay_reports_root" action="action_kabay_report_notices" sequence="33" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+</odoo>

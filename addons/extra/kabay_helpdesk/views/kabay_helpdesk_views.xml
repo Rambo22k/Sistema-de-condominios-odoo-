@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kabay_helpdesk_ticket_list" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.kabay.list</field><field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml"><list string="Solicitudes residenciales" default_order="create_date desc">
+            <field name="ticket_ref"/><field name="name"/><field name="partner_id"/><field name="kabay_apartment_id"/>
+            <field name="kabay_condominium_id"/><field name="kabay_building_id"/><field name="kabay_category_id"/>
+            <field name="priority" widget="priority"/><field name="stage_id"/><field name="user_id"/><field name="create_date"/>
+        </list></field>
+    </record>
+    <record id="view_kabay_helpdesk_ticket_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.kabay.form</field><field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml"><form string="Solicitud residencial">
+            <header>
+                <button name="action_kabay_set_state" type="object" string="En revisión" context="{'state': 'review'}" class="btn-primary" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+                <button name="action_kabay_set_state" type="object" string="En progreso" context="{'state': 'in_progress'}" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+                <button name="action_kabay_set_state" type="object" string="Esperar residente" context="{'state': 'waiting_resident'}" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+                <button name="action_kabay_set_state" type="object" string="Resolver" context="{'state': 'resolved'}" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+                <button name="action_kabay_set_state" type="object" string="Cerrar" context="{'state': 'closed'}" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+                <field name="stage_id" widget="statusbar" domain="[('team_ids', 'in', team_id)]"/>
+            </header>
+            <sheet>
+                <div class="oe_title"><label for="name"/><h1><field name="name" placeholder="Asunto de la solicitud"/></h1></div>
+                <group>
+                    <group string="Solicitante"><field name="ticket_ref" readonly="1"/><field name="partner_id"/><field name="kabay_apartment_id"/><field name="kabay_relation_id"/><field name="kabay_condominium_id"/><field name="kabay_building_id"/></group>
+                    <group string="Gestión"><field name="company_id"/><field name="team_id"/><field name="kabay_category_id"/><field name="priority" widget="priority"/><field name="user_id"/><field name="kabay_state"/></group>
+                </group>
+                <notebook><page string="Descripción"><field name="description" widget="html"/></page>
+                    <page string="Archivos residentes"><field name="kabay_attachment_ids" readonly="1"><list><field name="name"/><field name="file_size"/><field name="create_date"/></list></field></page>
+                </notebook>
+            </sheet><chatter/>
+        </form></field>
+    </record>
+    <record id="view_kabay_helpdesk_ticket_kanban" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.kabay.kanban</field><field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml"><kanban default_group_by="stage_id">
+            <field name="name"/><field name="ticket_ref"/><field name="partner_id"/><field name="kabay_apartment_id"/><field name="priority"/><field name="user_id"/>
+            <templates><t t-name="card"><div class="oe_kanban_global_click"><strong><field name="ticket_ref"/> · <field name="name"/></strong><div><field name="partner_id"/> · <field name="kabay_apartment_id"/></div><div><field name="priority" widget="priority"/><field name="user_id"/></div></div></t></templates>
+        </kanban></field>
+    </record>
+    <record id="view_kabay_helpdesk_ticket_search" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.kabay.search</field><field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml"><search string="Solicitudes"><field name="ticket_ref"/><field name="name"/><field name="partner_id"/><field name="kabay_apartment_id"/><field name="kabay_condominium_id"/><field name="kabay_building_id"/><field name="kabay_category_id"/><field name="user_id"/>
+            <filter name="new" string="Nuevas" domain="[('kabay_state', '=', 'new')]"/><filter name="urgent" string="Urgentes" domain="[('priority', '=', '3')]"/><filter name="pending" string="Pendientes" domain="[('kabay_state', 'not in', ['resolved', 'closed', 'cancelled'])]"/>
+            <filter name="group_state" string="Estado" context="{'group_by': 'stage_id'}"/><filter name="group_category" string="Categoría" context="{'group_by': 'kabay_category_id'}"/><filter name="group_condominium" string="Condominio" context="{'group_by': 'kabay_condominium_id'}"/><filter name="group_building" string="Torre" context="{'group_by': 'kabay_building_id'}"/><filter name="group_assignee" string="Responsable" context="{'group_by': 'user_id'}"/><filter name="group_date" string="Creación" context="{'group_by': 'create_date:month'}"/>
+        </search></field>
+    </record>
+    <record id="view_kabay_helpdesk_category_list" model="ir.ui.view"><field name="name">kabay.helpdesk.category.list</field><field name="model">kabay.helpdesk.category</field><field name="arch" type="xml"><list><field name="sequence" widget="handle"/><field name="name"/><field name="company_id"/><field name="active"/></list></field></record>
+    <record id="view_kabay_helpdesk_category_form" model="ir.ui.view"><field name="name">kabay.helpdesk.category.form</field><field name="model">kabay.helpdesk.category</field><field name="arch" type="xml"><form><sheet><group><field name="name"/><field name="sequence"/><field name="company_id"/><field name="active"/></group></sheet></form></field></record>
+    <record id="action_kabay_helpdesk_tickets" model="ir.actions.act_window"><field name="name">Solicitudes residenciales</field><field name="res_model">helpdesk.ticket</field><field name="view_mode">kanban,list,form</field><field name="domain">[('kabay_apartment_id', '!=', False)]</field><field name="context">{'search_default_pending': 1}</field></record>
+    <record id="action_kabay_helpdesk_categories" model="ir.actions.act_window"><field name="name">Categorías</field><field name="res_model">kabay.helpdesk.category</field><field name="view_mode">list,form</field></record>
+    <menuitem id="menu_kabay_helpdesk_tickets" name="Solicitudes residenciales" parent="helpdesk.menu_helpdesk_root" action="action_kabay_helpdesk_tickets" sequence="15" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance"/>
+    <menuitem id="menu_kabay_helpdesk_categories" name="Categorías Kabay" parent="helpdesk.helpdesk_menu_config" action="action_kabay_helpdesk_categories" sequence="35" groups="kabay_base.group_kabay_manager"/>
+</odoo>

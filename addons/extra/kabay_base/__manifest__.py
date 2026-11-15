@@ -1,0 +1,20 @@
+{
+    "name": "Kabay Group",
+    "author": "Kabay Group",
+    "summary": "Administración de condominios, edificios y apartamentos",
+    "version": "19.0.1.0.0",
+    "category": "Services/Condominium",
+    "license": "LGPL-3",
+    "depends": ["base", "mail"],
+    "data": [
+        "security/kabay_groups.xml",
+        "security/ir.model.access.csv",
+        "security/kabay_rules.xml",
+        "views/kabay_condominium_views.xml",
+        "views/kabay_building_views.xml",
+        "views/kabay_apartment_views.xml",
+        "views/kabay_menus.xml",
+    ],
+    "application": True,
+    "installable": True,
+}

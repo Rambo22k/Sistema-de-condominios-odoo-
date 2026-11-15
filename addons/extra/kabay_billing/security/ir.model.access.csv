@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kabay_fee_manager,fee manager,model_kabay_fee_rule,kabay_base.group_kabay_manager,1,1,1,0
+access_kabay_fee_finance,fee finance,model_kabay_fee_rule,kabay_base.group_kabay_finance,1,1,1,0
+access_kabay_resp_manager,responsibility manager,model_kabay_payment_responsibility,kabay_base.group_kabay_manager,1,1,1,0
+access_kabay_resp_finance,responsibility finance,model_kabay_payment_responsibility,kabay_base.group_kabay_finance,1,1,1,0
+access_kabay_batch_finance,batch finance,model_kabay_billing_batch,kabay_base.group_kabay_finance,1,1,1,0
+access_kabay_batch_line_finance,batch line finance,model_kabay_billing_batch_line,kabay_base.group_kabay_finance,1,1,1,0

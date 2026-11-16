@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem id="menu_kabay_root" name="Kabay Group" sequence="35" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
-    <menuitem id="menu_kabay_condominiums" name="Condominiums" parent="menu_kabay_root" action="action_kabay_condominium" sequence="10" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
-    <menuitem id="menu_kabay_buildings" name="Buildings / Towers" parent="menu_kabay_root" action="action_kabay_building" sequence="20" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
-    <menuitem id="menu_kabay_apartments" name="Apartments / Units" parent="menu_kabay_root" action="action_kabay_apartment" sequence="30" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
+    <menuitem id="menu_kabay_condominiums" name="Condominios" parent="menu_kabay_root" action="action_kabay_condominium" sequence="10" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
+    <menuitem id="menu_kabay_buildings" name="Edificios / Torres" parent="menu_kabay_root" action="action_kabay_building" sequence="20" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
+    <menuitem id="menu_kabay_apartments" name="Apartamentos / Unidades" parent="menu_kabay_root" action="action_kabay_apartment" sequence="30" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management"/>
 </odoo>

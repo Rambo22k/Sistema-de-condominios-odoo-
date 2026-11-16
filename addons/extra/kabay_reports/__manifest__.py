@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Reports",
+    "name": "Kabay Reportes",
     "author": "Kabay Group",
     "summary": "Panel y reportes operativos y financieros Kabay",
     "version": "19.0.1.0.0",

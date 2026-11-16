@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Notices",
+    "name": "Kabay Avisos",
     "author": "Kabay Group",
     "summary": "Avisos comunitarios segmentados para residentes",
     "version": "19.0.1.0.0",

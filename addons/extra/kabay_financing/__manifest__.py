@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Financing",
+    "name": "Kabay Financiamiento",
     "author": "Kabay Group",
     "summary": "Contratos de compra financiada y calendarios de cuotas",
     "version": "19.0.1.1.0",

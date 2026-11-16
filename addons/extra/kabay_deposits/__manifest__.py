@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Deposits",
+    "name": "Kabay Depósitos",
     "author": "Kabay Group",
     "summary": "Declaraciones de depósitos y aplicación contable verificada",
     "version": "19.0.1.0.0",

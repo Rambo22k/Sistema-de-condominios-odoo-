@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Notifications",
+    "name": "Kabay Notificaciones",
     "summary": "Comunicaciones automáticas seguras para residentes Kabay",
     "version": "19.0.1.0.0",
     "category": "Services/Condominium",

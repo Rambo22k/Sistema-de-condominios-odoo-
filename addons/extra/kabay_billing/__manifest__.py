@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Billing",
+    "name": "Kabay Facturación",
     "author": "Kabay Group",
     "summary": "Cuotas, responsabilidades y lotes de facturación de condominios",
     "version": "19.0.1.1.0",

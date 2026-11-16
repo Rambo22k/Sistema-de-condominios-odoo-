@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Helpdesk",
+    "name": "Kabay Solicitudes",
     "author": "Kabay Group",
     "summary": "Solicitudes residenciales sobre Helpdesk estándar de Odoo",
     "version": "19.0.1.0.0",

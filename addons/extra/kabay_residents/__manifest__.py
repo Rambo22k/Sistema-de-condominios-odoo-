@@ -1,5 +1,5 @@
 {
-    "name": "Kabay Residents",
+    "name": "Kabay Residentes",
     "author": "Kabay Group",
     "summary": "Relaciones históricas entre personas y apartamentos",
     "version": "19.0.1.0.0",

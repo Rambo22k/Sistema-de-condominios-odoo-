@@ -4,25 +4,25 @@ from odoo.exceptions import ValidationError
 
 class KabayBuilding(models.Model):
     _name = "kabay.building"
-    _description = "Condominium building"
+    _description = "Edificio de condominio"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "condominium_id, name, id"
 
-    name = fields.Char(required=True, tracking=True)
-    code = fields.Char(required=True, copy=False, tracking=True)
+    name = fields.Char(string="Nombre", required=True, tracking=True)
+    code = fields.Char(string="Código", required=True, copy=False, tracking=True)
     condominium_id = fields.Many2one(
-        "kabay.condominium", required=True, ondelete="restrict", index=True, tracking=True
+        "kabay.condominium", string="Condominio", required=True, ondelete="restrict", index=True, tracking=True
     )
     company_id = fields.Many2one(
         "res.company", related="condominium_id.company_id", store=True, index=True
     )
-    apartment_ids = fields.One2many("kabay.apartment", "building_id", string="Apartments")
+    apartment_ids = fields.One2many("kabay.apartment", "building_id", string="Apartamentos")
     apartment_count = fields.Integer(compute="_compute_apartment_count")
     active = fields.Boolean(default=True, tracking=True)
-    notes = fields.Text()
+    notes = fields.Text(string="Notas")
 
     _code_condominium_uniq = models.Constraint(
-        "unique(code, condominium_id)", "A building code must be unique per condominium."
+        "unique(code, condominium_id)", "El código del edificio debe ser único dentro del condominio."
     )
 
     @api.depends("apartment_ids")
@@ -33,4 +33,4 @@ class KabayBuilding(models.Model):
     @api.constrains("condominium_id")
     def _check_condominium(self):
         if any(not record.condominium_id for record in self):
-            raise ValidationError("Each building must belong to a condominium.")
+            raise ValidationError("Cada edificio debe pertenecer a un condominio.")

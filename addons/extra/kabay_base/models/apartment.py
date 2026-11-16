@@ -15,17 +15,17 @@ class KabayApartment(models.Model):
     )
     condominium_id = fields.Many2one(
         "kabay.condominium", related="building_id.condominium_id", store=True, index=True
-    )
+    , string="Condominio")
     company_id = fields.Many2one(
         "res.company", related="building_id.company_id", store=True, index=True
-    )
+    , string="Compañía")
     floor = fields.Char(string="Piso")
     unit_type = fields.Char(string="Tipo de unidad")
     area = fields.Float(digits=(16, 2), string="Área (m²)")
     coefficient = fields.Float(digits=(16, 6), string="Coeficiente de participación")
     photo_ids = fields.One2many("kabay.apartment.photo", "apartment_id", string="Fotos")
-    photo_count = fields.Integer(compute="_compute_photo_count")
-    active = fields.Boolean(default=True, tracking=True)
+    photo_count = fields.Integer(compute="_compute_photo_count", string="Cantidad de fotos")
+    active = fields.Boolean(default=True, tracking=True, string="Activo")
     notes = fields.Text(string="Notas")
 
     def action_add_relation(self):
@@ -63,12 +63,12 @@ class KabayApartmentPhoto(models.Model):
     name = fields.Char(string="Descripción", required=True)
     apartment_id = fields.Many2one(
         "kabay.apartment", required=True, ondelete="restrict", index=True
-    )
+    , string="Apartamento")
     company_id = fields.Many2one(
         "res.company", related="apartment_id.company_id", store=True, index=True
-    )
-    image = fields.Image(required=True, attachment=True)
-    sequence = fields.Integer(default=10)
+    , string="Compañía")
+    image = fields.Image(required=True, attachment=True, string="Imagen")
+    sequence = fields.Integer(default=10, string="Secuencia")
 
     @api.model_create_multi
     def create(self, vals_list):

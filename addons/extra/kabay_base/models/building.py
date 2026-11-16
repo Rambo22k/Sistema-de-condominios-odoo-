@@ -15,10 +15,10 @@ class KabayBuilding(models.Model):
     )
     company_id = fields.Many2one(
         "res.company", related="condominium_id.company_id", store=True, index=True
-    )
+    , string="Compañía")
     apartment_ids = fields.One2many("kabay.apartment", "building_id", string="Apartamentos")
-    apartment_count = fields.Integer(compute="_compute_apartment_count")
-    active = fields.Boolean(default=True, tracking=True)
+    apartment_count = fields.Integer(compute="_compute_apartment_count", string="Cantidad de apartamentos")
+    active = fields.Boolean(default=True, tracking=True, string="Activo")
     notes = fields.Text(string="Notas")
 
     _code_condominium_uniq = models.Constraint(

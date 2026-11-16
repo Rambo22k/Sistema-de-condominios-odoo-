@@ -20,20 +20,20 @@ class KabayFeeRule(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "condominium_id, name"
 
-    name = fields.Char(required=True, tracking=True)
-    condominium_id = fields.Many2one("kabay.condominium", required=True, ondelete="restrict", index=True)
-    building_id = fields.Many2one("kabay.building", ondelete="restrict", index=True)
+    name = fields.Char(required=True, tracking=True, string="Nombre")
+    condominium_id = fields.Many2one("kabay.condominium", required=True, ondelete="restrict", index=True, string="Condominio")
+    building_id = fields.Many2one("kabay.building", ondelete="restrict", index=True, string="Edificio / torre")
     apartment_ids = fields.Many2many("kabay.apartment", string="Unidades específicas")
-    company_id = fields.Many2one("res.company", related="condominium_id.company_id", store=True, readonly=True, index=True)
-    product_id = fields.Many2one("product.product", required=True, ondelete="restrict")
-    concept = fields.Selection(CONCEPTS, required=True, default="maintenance", tracking=True)
-    amount = fields.Monetary(required=True, currency_field="currency_id", tracking=True)
-    currency_id = fields.Many2one("res.currency", required=True, default=lambda self: self.env.company.currency_id)
-    periodicity = fields.Selection(PERIODICITIES, required=True, default="monthly")
-    date_start = fields.Date(required=True, default=fields.Date.context_today)
-    date_end = fields.Date()
+    company_id = fields.Many2one("res.company", related="condominium_id.company_id", store=True, readonly=True, index=True, string="Compañía")
+    product_id = fields.Many2one("product.product", required=True, ondelete="restrict", string="Producto")
+    concept = fields.Selection(CONCEPTS, required=True, default="maintenance", tracking=True, string="Concepto")
+    amount = fields.Monetary(required=True, currency_field="currency_id", tracking=True, string="Importe")
+    currency_id = fields.Many2one("res.currency", required=True, default=lambda self: self.env.company.currency_id, string="Moneda")
+    periodicity = fields.Selection(PERIODICITIES, required=True, default="monthly", string="Periodicidad")
+    date_start = fields.Date(required=True, default=fields.Date.context_today, string="Fecha de inicio")
+    date_end = fields.Date(string="Fecha de fin")
     due_day = fields.Integer(string="Día de vencimiento", help="Vacío: se usa la fecha general del lote.")
-    active = fields.Boolean(default=True, tracking=True)
+    active = fields.Boolean(default=True, tracking=True, string="Activo")
 
     @api.constrains("building_id", "condominium_id", "apartment_ids", "date_start", "date_end", "amount", "due_day")
     def _check_rule(self):
@@ -78,15 +78,15 @@ class KabayPaymentResponsibility(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "apartment_id, date_start desc, id desc"
 
-    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True)
-    condominium_id = fields.Many2one(related="apartment_id.condominium_id", store=True, index=True)
-    company_id = fields.Many2one(related="apartment_id.company_id", store=True, index=True)
-    fee_rule_id = fields.Many2one("kabay.fee.rule", ondelete="restrict", index=True)
-    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True)
-    date_start = fields.Date(required=True, default=fields.Date.context_today)
-    date_end = fields.Date()
-    state = fields.Selection([("draft", "Borrador"), ("confirmed", "Confirmado"), ("ended", "Finalizado")], default="confirmed", required=True, tracking=True)
-    active = fields.Boolean(default=True)
+    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, string="Apartamento")
+    condominium_id = fields.Many2one(related="apartment_id.condominium_id", store=True, index=True, string="Condominio")
+    company_id = fields.Many2one(related="apartment_id.company_id", store=True, index=True, string="Compañía")
+    fee_rule_id = fields.Many2one("kabay.fee.rule", ondelete="restrict", index=True, string="Regla de cuota")
+    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True, string="Contacto")
+    date_start = fields.Date(required=True, default=fields.Date.context_today, string="Fecha de inicio")
+    date_end = fields.Date(string="Fecha de fin")
+    state = fields.Selection([("draft", "Borrador"), ("confirmed", "Confirmado"), ("ended", "Finalizado")], default="confirmed", required=True, tracking=True, string="Estado")
+    active = fields.Boolean(default=True, string="Activo")
 
     @api.constrains("apartment_id", "fee_rule_id", "partner_id", "date_start", "date_end")
     def _check_responsibility(self):
@@ -123,20 +123,20 @@ class KabayBillingBatch(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "invoice_date desc, id desc"
 
-    name = fields.Char(default="Nuevo", required=True, copy=False, readonly=True)
-    condominium_id = fields.Many2one("kabay.condominium", required=True, ondelete="restrict", index=True)
-    company_id = fields.Many2one(related="condominium_id.company_id", store=True, readonly=True, index=True)
-    period_start = fields.Date(required=True, default=fields.Date.context_today)
-    period_end = fields.Date(required=True, default=fields.Date.context_today)
-    invoice_date = fields.Date(required=True, default=fields.Date.context_today)
-    due_date = fields.Date(required=True, default=fields.Date.context_today)
+    name = fields.Char(default="Nuevo", required=True, copy=False, readonly=True, string="Nombre")
+    condominium_id = fields.Many2one("kabay.condominium", required=True, ondelete="restrict", index=True, string="Condominio")
+    company_id = fields.Many2one(related="condominium_id.company_id", store=True, readonly=True, index=True, string="Compañía")
+    period_start = fields.Date(required=True, default=fields.Date.context_today, string="Inicio del período")
+    period_end = fields.Date(required=True, default=fields.Date.context_today, string="Fin del período")
+    invoice_date = fields.Date(required=True, default=fields.Date.context_today, string="Fecha de factura")
+    due_date = fields.Date(required=True, default=fields.Date.context_today, string="Fecha de vencimiento")
     fee_rule_ids = fields.Many2many("kabay.fee.rule", string="Reglas aplicables")
     line_ids = fields.One2many("kabay.billing.batch.line", "batch_id", string="Vista previa")
-    state = fields.Selection([("draft", "Borrador"), ("prepared", "Preparado"), ("confirmed", "Confirmado"), ("cancelled", "Cancelado")], default="draft", required=True, tracking=True)
-    ready_count = fields.Integer(compute="_compute_totals")
-    invoice_count = fields.Integer(compute="_compute_totals")
-    total_expected = fields.Monetary(compute="_compute_totals", currency_field="currency_id")
-    currency_id = fields.Many2one(related="company_id.currency_id")
+    state = fields.Selection([("draft", "Borrador"), ("prepared", "Preparado"), ("confirmed", "Confirmado"), ("cancelled", "Cancelado")], default="draft", required=True, tracking=True, string="Estado")
+    ready_count = fields.Integer(compute="_compute_totals", string="Líneas listas")
+    invoice_count = fields.Integer(compute="_compute_totals", string="Cantidad de facturas")
+    total_expected = fields.Monetary(compute="_compute_totals", currency_field="currency_id", string="Total esperado")
+    currency_id = fields.Many2one(related="company_id.currency_id", string="Moneda")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -290,19 +290,19 @@ class KabayBillingBatchLine(models.Model):
     _description = "Línea de vista previa Kabay"
     _order = "batch_id, apartment_id, id"
 
-    batch_id = fields.Many2one("kabay.billing.batch", required=True, ondelete="cascade", index=True)
-    condominium_id = fields.Many2one(related="batch_id.condominium_id", store=True, index=True)
-    company_id = fields.Many2one(related="batch_id.company_id", store=True, index=True)
-    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True)
-    fee_rule_id = fields.Many2one("kabay.fee.rule", ondelete="restrict")
-    responsibility_id = fields.Many2one("kabay.payment.responsibility", ondelete="restrict")
-    partner_id = fields.Many2one("res.partner", ondelete="restrict")
-    amount = fields.Monetary(currency_field="currency_id")
-    currency_id = fields.Many2one(related="batch_id.company_id.currency_id")
-    due_date = fields.Date()
-    status = fields.Selection([("ready", "Lista"), ("no_fee", "Sin tarifa"), ("no_responsible", "Sin responsable"), ("duplicate", "Duplicada"), ("error", "Error"), ("invoiced", "Facturada")], required=True, index=True)
-    message = fields.Char()
-    move_id = fields.Many2one("account.move", ondelete="restrict")
+    batch_id = fields.Many2one("kabay.billing.batch", required=True, ondelete="cascade", index=True, string="Lote de facturación")
+    condominium_id = fields.Many2one(related="batch_id.condominium_id", store=True, index=True, string="Condominio")
+    company_id = fields.Many2one(related="batch_id.company_id", store=True, index=True, string="Compañía")
+    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, string="Apartamento")
+    fee_rule_id = fields.Many2one("kabay.fee.rule", ondelete="restrict", string="Regla de cuota")
+    responsibility_id = fields.Many2one("kabay.payment.responsibility", ondelete="restrict", string="Responsabilidad de pago")
+    partner_id = fields.Many2one("res.partner", ondelete="restrict", string="Contacto")
+    amount = fields.Monetary(currency_field="currency_id", string="Importe")
+    currency_id = fields.Many2one(related="batch_id.company_id.currency_id", string="Moneda")
+    due_date = fields.Date(string="Fecha de vencimiento")
+    status = fields.Selection([("ready", "Lista"), ("no_fee", "Sin tarifa"), ("no_responsible", "Sin responsable"), ("duplicate", "Duplicada"), ("error", "Error"), ("invoiced", "Facturada")], required=True, index=True, string="Estado")
+    message = fields.Char(string="Mensaje")
+    move_id = fields.Many2one("account.move", ondelete="restrict", string="Asiento contable")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -336,13 +336,13 @@ class KabayBillingBatchLine(models.Model):
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    kabay_condominium_id = fields.Many2one("kabay.condominium", copy=False, ondelete="restrict", index=True, check_company=True)
-    kabay_apartment_id = fields.Many2one("kabay.apartment", copy=False, ondelete="restrict", index=True, check_company=True)
-    kabay_responsible_id = fields.Many2one("res.partner", copy=False, ondelete="restrict", index=True)
-    kabay_batch_id = fields.Many2one("kabay.billing.batch", copy=False, ondelete="restrict", index=True)
-    kabay_period_start = fields.Date(copy=False, index=True)
-    kabay_period_end = fields.Date(copy=False, index=True)
-    kabay_billing_key = fields.Char(copy=False, index=True)
+    kabay_condominium_id = fields.Many2one("kabay.condominium", copy=False, ondelete="restrict", index=True, check_company=True, string="Condominio")
+    kabay_apartment_id = fields.Many2one("kabay.apartment", copy=False, ondelete="restrict", index=True, check_company=True, string="Apartamento")
+    kabay_responsible_id = fields.Many2one("res.partner", copy=False, ondelete="restrict", index=True, string="Responsable de pago")
+    kabay_batch_id = fields.Many2one("kabay.billing.batch", copy=False, ondelete="restrict", index=True, string="Lote de facturación")
+    kabay_period_start = fields.Date(copy=False, index=True, string="Inicio del período")
+    kabay_period_end = fields.Date(copy=False, index=True, string="Fin del período")
+    kabay_billing_key = fields.Char(copy=False, index=True, string="Clave de facturación")
     _kabay_billing_key_uniq = models.Constraint("unique(kabay_billing_key)", "La factura Kabay ya fue generada.")
 
     @api.constrains(
@@ -384,8 +384,8 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
-    kabay_fee_rule_id = fields.Many2one("kabay.fee.rule", copy=False, ondelete="restrict", index=True, check_company=True)
-    kabay_apartment_id = fields.Many2one("kabay.apartment", copy=False, ondelete="restrict", index=True, check_company=True)
+    kabay_fee_rule_id = fields.Many2one("kabay.fee.rule", copy=False, ondelete="restrict", index=True, check_company=True, string="Regla de cuota")
+    kabay_apartment_id = fields.Many2one("kabay.apartment", copy=False, ondelete="restrict", index=True, check_company=True, string="Apartamento")
 
     @api.constrains("move_id", "kabay_fee_rule_id", "kabay_apartment_id")
     def _check_kabay_billing_line_identity(self):

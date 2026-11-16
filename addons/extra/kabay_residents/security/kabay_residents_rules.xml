@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="rule_kabay_apartment_relation_company" model="ir.rule">
-        <field name="name">Kabay resident relations by allowed company</field>
+        <field name="name">Relaciones residenciales Kabay por compañía autorizada</field>
         <field name="model_id" ref="model_kabay_apartment_relation"/>
         <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_manager')), (4, ref('kabay_base.group_kabay_finance')), (4, ref('kabay_base.group_kabay_reception')), (4, ref('kabay_base.group_kabay_maintenance')), (4, ref('kabay_base.group_kabay_management'))]"/>

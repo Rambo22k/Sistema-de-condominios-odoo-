@@ -87,8 +87,8 @@ class HelpdeskTicket(models.Model):
     kabay_category_id = fields.Many2one("kabay.helpdesk.category", string="Categoría", index=True, tracking=True)
     kabay_relation_id = fields.Many2one("kabay.apartment.relation", string="Relación residencial", index=True, copy=False)
     kabay_apartment_id = fields.Many2one("kabay.apartment", string="Apartamento", index=True, tracking=True, copy=False)
-    kabay_building_id = fields.Many2one("kabay.building", related="kabay_apartment_id.building_id", store=True, index=True)
-    kabay_condominium_id = fields.Many2one("kabay.condominium", related="kabay_apartment_id.condominium_id", store=True, index=True)
+    kabay_building_id = fields.Many2one("kabay.building", string="Edificio / torre", related="kabay_apartment_id.building_id", store=True, index=True)
+    kabay_condominium_id = fields.Many2one("kabay.condominium", related="kabay_apartment_id.condominium_id", store=True, index=True, string="Condominio")
     kabay_state = fields.Selection(related="stage_id.kabay_state", string="Estado Kabay", store=True, index=True)
     kabay_attachment_ids = fields.One2many("kabay.helpdesk.attachment", "ticket_id", string="Archivos residentes")
 
@@ -259,15 +259,15 @@ class HelpdeskTicket(models.Model):
 
 class KabayHelpdeskAttachment(models.Model):
     _name = "kabay.helpdesk.attachment"
-    _description = "Private resident request attachment"
+    _description = "Adjunto privado de solicitud residencial"
     _order = "create_date desc"
 
-    name = fields.Char(required=True)
-    ticket_id = fields.Many2one("helpdesk.ticket", required=True, ondelete="cascade", index=True)
-    company_id = fields.Many2one(related="ticket_id.company_id", store=True, index=True)
-    datas = fields.Binary(required=True, attachment=True)
-    file_size = fields.Integer(required=True, readonly=True)
-    mimetype = fields.Char(readonly=True)
+    name = fields.Char(required=True, string="Nombre")
+    ticket_id = fields.Many2one("helpdesk.ticket", required=True, ondelete="cascade", index=True, string="Solicitud")
+    company_id = fields.Many2one(related="ticket_id.company_id", store=True, index=True, string="Compañía")
+    datas = fields.Binary(required=True, attachment=True, string="Archivo")
+    file_size = fields.Integer(required=True, readonly=True, string="Tamaño del archivo")
+    mimetype = fields.Char(readonly=True, string="Tipo MIME")
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -20,9 +20,9 @@ class KabayCondominium(models.Model):
     zip = fields.Char(string="Código postal")
     country_id = fields.Many2one("res.country", string="País", ondelete="restrict")
     building_ids = fields.One2many("kabay.building", "condominium_id", string="Edificios")
-    building_count = fields.Integer(compute="_compute_structure_counts")
-    apartment_count = fields.Integer(compute="_compute_structure_counts")
-    active = fields.Boolean(default=True, tracking=True)
+    building_count = fields.Integer(compute="_compute_structure_counts", string="Cantidad de edificios")
+    apartment_count = fields.Integer(compute="_compute_structure_counts", string="Cantidad de apartamentos")
+    active = fields.Boolean(default=True, tracking=True, string="Activo")
     notes = fields.Text(string="Notas")
 
     _code_uniq = models.Constraint(

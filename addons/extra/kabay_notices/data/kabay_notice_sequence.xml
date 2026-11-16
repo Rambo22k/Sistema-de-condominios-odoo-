@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="sequence_kabay_notice" model="ir.sequence">
-        <field name="name">Kabay Notice</field>
+        <field name="name">Aviso Kabay</field>
         <field name="code">kabay.notice</field>
         <field name="prefix">AV-</field>
         <field name="padding">6</field>

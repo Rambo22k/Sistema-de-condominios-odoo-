@@ -6,33 +6,33 @@
     </record>
 
     <record id="rule_kabay_deposit_resident_own" model="ir.rule">
-        <field name="name">Residents see their own deposit declarations</field>
+        <field name="name">Residentes: consultar sus propias declaraciones de depósito</field>
         <field name="model_id" ref="model_kabay_deposit_declaration"/>
         <field name="domain_force">[('declarant_partner_id', '=', user.partner_id.id), ('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('group_kabay_deposit_resident'))]"/>
     </record>
     <record id="rule_kabay_deposit_finance_company" model="ir.rule">
-        <field name="name">Finance sees deposit declarations in allowed companies</field>
+        <field name="name">Finanzas: consultar declaraciones de depósito de compañías autorizadas</field>
         <field name="model_id" ref="model_kabay_deposit_declaration"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_finance')), (4, ref('kabay_base.group_kabay_manager')), (4, ref('kabay_base.group_kabay_management'))]"/>
     </record>
 
     <record id="rule_kabay_deposit_allocation_resident_own" model="ir.rule">
-        <field name="name">Residents see their own deposit allocations</field>
+        <field name="name">Residentes: consultar sus propias imputaciones de depósito</field>
         <field name="model_id" ref="model_kabay_deposit_allocation"/>
         <field name="domain_force">[('declaration_id.declarant_partner_id', '=', user.partner_id.id), ('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('group_kabay_deposit_resident'))]"/>
     </record>
     <record id="rule_kabay_deposit_allocation_staff_company" model="ir.rule">
-        <field name="name">Staff sees deposit allocations in allowed companies</field>
+        <field name="name">Personal: consultar imputaciones de depósito de compañías autorizadas</field>
         <field name="model_id" ref="model_kabay_deposit_allocation"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_finance')), (4, ref('kabay_base.group_kabay_manager')), (4, ref('kabay_base.group_kabay_management'))]"/>
     </record>
 
     <record id="rule_kabay_deposit_resident_relation_own_current" model="ir.rule">
-        <field name="name">Resident portal reads only own active apartment relations</field>
+        <field name="name">Portal: consultar únicamente relaciones vigentes de apartamentos propios</field>
         <field name="model_id" ref="kabay_residents.model_kabay_apartment_relation"/>
         <field name="domain_force">[('partner_id', '=', user.partner_id.id), ('role', 'in', ['owner', 'tenant', 'authorized_resident']), ('state', '=', 'confirmed'), ('active', '=', True), ('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('group_kabay_deposit_resident'))]"/>

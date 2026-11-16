@@ -7,22 +7,22 @@ from odoo.exceptions import UserError, ValidationError
 
 class KabayApartmentRelation(models.Model):
     _name = "kabay.apartment.relation"
-    _description = "Historical person-apartment relationship"
+    _description = "Relación histórica entre persona y apartamento"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "apartment_id, date_start desc, id desc"
 
     partner_id = fields.Many2one(
         "res.partner", required=True, ondelete="restrict", index=True, tracking=True
-    )
+    , string="Contacto")
     apartment_id = fields.Many2one(
         "kabay.apartment", required=True, ondelete="restrict", index=True, tracking=True
-    )
+    , string="Apartamento")
     condominium_id = fields.Many2one(
         "kabay.condominium", related="apartment_id.condominium_id", store=True, index=True
-    )
+    , string="Condominio")
     building_id = fields.Many2one(
         "kabay.building", related="apartment_id.building_id", store=True, index=True
-    )
+    , string="Edificio / torre")
     role = fields.Selection(
         [
             ("owner", "Propietario"),
@@ -31,24 +31,24 @@ class KabayApartmentRelation(models.Model):
         ],
         required=True,
         index=True,
-        tracking=True,
+        tracking=True, string="Rol residencial",
     )
-    date_start = fields.Date(required=True, default=fields.Date.context_today, tracking=True)
-    date_end = fields.Date(tracking=True)
+    date_start = fields.Date(required=True, default=fields.Date.context_today, tracking=True, string="Fecha de inicio")
+    date_end = fields.Date(tracking=True, string="Fecha de fin")
     ownership_share = fields.Float(string="Participación (%)", digits=(5, 2), tracking=True)
     state = fields.Selection(
         [("draft", "Borrador"), ("confirmed", "Confirmada"), ("ended", "Finalizada")],
         default="draft",
         required=True,
         tracking=True,
-        index=True,
+        index=True, string="Estado",
     )
-    active = fields.Boolean(default=True, tracking=True)
-    is_current = fields.Boolean(compute="_compute_is_current")
+    active = fields.Boolean(default=True, tracking=True, string="Activo")
+    is_current = fields.Boolean(compute="_compute_is_current", string="Relación vigente")
     company_id = fields.Many2one(
         "res.company", related="apartment_id.company_id", store=True, index=True
-    )
-    notes = fields.Text()
+    , string="Compañía")
+    notes = fields.Text(string="Observaciones")
 
     _identity_date_start_uniq = models.Constraint(
         "unique(partner_id, apartment_id, role, date_start)",

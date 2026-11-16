@@ -54,33 +54,33 @@ class KabayNotification(models.Model):
     _order = "create_date desc, id desc"
     _check_company_auto = True
 
-    name = fields.Char(required=True, index=True)
-    event_type = fields.Selection(EVENTS, required=True, index=True)
+    name = fields.Char(required=True, index=True, string="Nombre")
+    event_type = fields.Selection(EVENTS, required=True, index=True, string="Tipo de evento")
     category = fields.Selection([
         ("billing", "Facturación"), ("deposits", "Depósitos"),
         ("helpdesk", "Solicitudes"), ("notices", "Avisos"),
         ("financing", "Financiamiento"),
-    ], required=True, index=True)
-    source_model = fields.Char(required=True, index=True)
-    source_res_id = fields.Integer(required=True, index=True)
-    event_identifier = fields.Char(required=True, index=True)
-    event_data = fields.Json(default=dict, copy=False)
-    company_id = fields.Many2one("res.company", required=True, index=True, ondelete="restrict")
-    recipient_id = fields.Many2one("res.partner", required=True, index=True, ondelete="restrict")
-    event_date = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
+    ], required=True, index=True, string="Categoría")
+    source_model = fields.Char(required=True, index=True, string="Modelo de origen")
+    source_res_id = fields.Integer(required=True, index=True, string="ID del registro de origen")
+    event_identifier = fields.Char(required=True, index=True, string="Identificador del evento")
+    event_data = fields.Json(default=dict, copy=False, string="Datos del evento")
+    company_id = fields.Many2one("res.company", required=True, index=True, ondelete="restrict", string="Compañía")
+    recipient_id = fields.Many2one("res.partner", required=True, index=True, ondelete="restrict", string="Destinatario")
+    event_date = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True, string="Fecha del evento")
     state = fields.Selection([
         ("pending", "Pendiente"), ("queued", "En cola Odoo"),
         ("sent", "Enviado"), ("failed", "Fallido"),
         ("skipped", "Omitido"), ("cancelled", "Cancelado"),
-    ], required=True, default="pending", index=True)
-    attempt_count = fields.Integer(default=0, readonly=True)
-    last_error = fields.Text(readonly=True)
-    next_retry_at = fields.Datetime(index=True)
-    sent_at = fields.Datetime(readonly=True)
+    ], required=True, default="pending", index=True, string="Estado")
+    attempt_count = fields.Integer(default=0, readonly=True, string="Cantidad de intentos")
+    last_error = fields.Text(readonly=True, string="Último error")
+    next_retry_at = fields.Datetime(index=True, string="Próximo reintento")
+    sent_at = fields.Datetime(readonly=True, string="Fecha de envío")
     mail_ids = fields.One2many("mail.mail", "kabay_notification_id", string="Correos Odoo", readonly=True)
-    source_label = fields.Char(compute="_compute_source_label")
-    email_subject = fields.Char(compute="_compute_email_content")
-    email_body_html = fields.Html(compute="_compute_email_content", sanitize=True)
+    source_label = fields.Char(compute="_compute_source_label", string="Origen")
+    email_subject = fields.Char(compute="_compute_email_content", string="Asunto del correo")
+    email_body_html = fields.Html(compute="_compute_email_content", sanitize=True, string="Contenido del correo")
 
     _event_unique = models.Constraint(
         "unique(source_model, source_res_id, event_type, recipient_id, company_id, event_identifier)",

@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="rule_kabay_portal_apartment" model="ir.rule">
-        <field name="name">Kabay resident sees current related apartments</field>
+        <field name="name">Residentes Kabay: apartamentos con relación vigente</field>
         <field name="model_id" ref="kabay_base.model_kabay_apartment"/>
         <field name="groups" eval="[(4, ref('kabay_deposits.group_kabay_deposit_resident'))]"/>
         <field name="domain_force">[('resident_relation_ids.partner_id', '=', user.partner_id.id), ('resident_relation_ids.state', '=', 'confirmed'), ('resident_relation_ids.active', '=', True), ('resident_relation_ids.date_start', '&lt;=', kabay_today), '|', ('resident_relation_ids.date_end', '=', False), ('resident_relation_ids.date_end', '&gt;=', kabay_today), ('company_id', 'in', company_ids)]</field>
     </record>
     <record id="rule_kabay_portal_building" model="ir.rule">
-        <field name="name">Kabay resident sees buildings with current units</field>
+        <field name="name">Residentes Kabay: edificios con unidades vigentes</field>
         <field name="model_id" ref="kabay_base.model_kabay_building"/>
         <field name="groups" eval="[(4, ref('kabay_deposits.group_kabay_deposit_resident'))]"/>
         <field name="domain_force">[('apartment_ids.resident_relation_ids.partner_id', '=', user.partner_id.id), ('apartment_ids.resident_relation_ids.state', '=', 'confirmed'), ('apartment_ids.resident_relation_ids.active', '=', True), ('apartment_ids.resident_relation_ids.date_start', '&lt;=', kabay_today), '|', ('apartment_ids.resident_relation_ids.date_end', '=', False), ('apartment_ids.resident_relation_ids.date_end', '&gt;=', kabay_today), ('company_id', 'in', company_ids)]</field>
     </record>
     <record id="rule_kabay_portal_condominium" model="ir.rule">
-        <field name="name">Kabay resident sees condominiums with current units</field>
+        <field name="name">Residentes Kabay: condominios con unidades vigentes</field>
         <field name="model_id" ref="kabay_base.model_kabay_condominium"/>
         <field name="groups" eval="[(4, ref('kabay_deposits.group_kabay_deposit_resident'))]"/>
         <field name="domain_force">[('building_ids.apartment_ids.resident_relation_ids.partner_id', '=', user.partner_id.id), ('building_ids.apartment_ids.resident_relation_ids.state', '=', 'confirmed'), ('building_ids.apartment_ids.resident_relation_ids.active', '=', True), ('building_ids.apartment_ids.resident_relation_ids.date_start', '&lt;=', kabay_today), '|', ('building_ids.apartment_ids.resident_relation_ids.date_end', '=', False), ('building_ids.apartment_ids.resident_relation_ids.date_end', '&gt;=', kabay_today), ('company_id', 'in', company_ids)]</field>
     </record>
     <record id="rule_kabay_portal_photo" model="ir.rule">
-        <field name="name">Kabay resident sees photos of current units</field>
+        <field name="name">Residentes Kabay: fotos de unidades vigentes</field>
         <field name="model_id" ref="kabay_base.model_kabay_apartment_photo"/>
         <field name="groups" eval="[(4, ref('kabay_deposits.group_kabay_deposit_resident'))]"/>
         <field name="domain_force">[('apartment_id.resident_relation_ids.partner_id', '=', user.partner_id.id), ('apartment_id.resident_relation_ids.state', '=', 'confirmed'), ('apartment_id.resident_relation_ids.active', '=', True), ('apartment_id.resident_relation_ids.date_start', '&lt;=', kabay_today), '|', ('apartment_id.resident_relation_ids.date_end', '=', False), ('apartment_id.resident_relation_ids.date_end', '&gt;=', kabay_today), ('company_id', 'in', company_ids)]</field>
     </record>
     <record id="rule_kabay_portal_financing_contract" model="ir.rule">
-        <field name="name">Kabay buyer sees own current financing contracts</field>
+        <field name="name">Compradores Kabay: contratos de financiamiento vigentes propios</field>
         <field name="model_id" ref="kabay_financing.model_kabay_financing_contract"/>
         <field name="groups" eval="[(4, ref('kabay_deposits.group_kabay_deposit_resident'))]"/>
         <field name="domain_force">[('buyer_id', '=', user.partner_id.id), ('company_id', 'in', company_ids), ('apartment_id.resident_relation_ids.partner_id', '=', user.partner_id.id), ('apartment_id.resident_relation_ids.state', '=', 'confirmed'), ('apartment_id.resident_relation_ids.active', '=', True), ('apartment_id.resident_relation_ids.date_start', '&lt;=', kabay_today), '|', ('apartment_id.resident_relation_ids.date_end', '=', False), ('apartment_id.resident_relation_ids.date_end', '&gt;=', kabay_today)]</field>
     </record>
     <record id="rule_kabay_portal_financing_installment" model="ir.rule">
-        <field name="name">Kabay buyer sees installments of own contracts</field>
+        <field name="name">Compradores Kabay: cuotas de sus propios contratos</field>
         <field name="model_id" ref="kabay_financing.model_kabay_financing_installment"/>
         <field name="groups" eval="[(4, ref('kabay_deposits.group_kabay_deposit_resident'))]"/>
         <field name="domain_force">[('contract_id.buyer_id', '=', user.partner_id.id), ('contract_id.company_id', 'in', company_ids), ('contract_id.apartment_id.resident_relation_ids.partner_id', '=', user.partner_id.id), ('contract_id.apartment_id.resident_relation_ids.state', '=', 'confirmed'), ('contract_id.apartment_id.resident_relation_ids.active', '=', True), ('contract_id.apartment_id.resident_relation_ids.date_start', '&lt;=', kabay_today), '|', ('contract_id.apartment_id.resident_relation_ids.date_end', '=', False), ('contract_id.apartment_id.resident_relation_ids.date_end', '&gt;=', kabay_today)]</field>

@@ -38,7 +38,7 @@
                     <button name="action_publish" type="object" string="Publicar ahora" class="btn-primary" invisible="state not in ('draft','scheduled')" groups="kabay_base.group_kabay_manager"/>
                     <button name="action_schedule" type="object" string="Programar" invisible="state != 'draft'" groups="kabay_base.group_kabay_manager"/>
                     <button name="action_finish" type="object" string="Finalizar" invisible="state != 'published'" groups="kabay_base.group_kabay_manager"/>
-                    <button name="action_cancel" type="object" string="Cancelar aviso" invisible="state not in ('scheduled','published')" groups="kabay_base.group_kabay_manager" confirm="El aviso dejará de aparecer en Portal. ¿Continuar?"/>
+                    <button name="action_cancel" type="object" string="Cancelar aviso" invisible="state not in ('scheduled','published')" groups="kabay_base.group_kabay_manager" confirm="El aviso dejará de aparecer en el portal del residente. ¿Continuar?"/>
                     <button name="action_reset_draft" type="object" string="Volver a borrador" invisible="state != 'cancelled' or published_at" groups="kabay_base.group_kabay_manager"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,published,finished,cancelled"/>
                 </header>

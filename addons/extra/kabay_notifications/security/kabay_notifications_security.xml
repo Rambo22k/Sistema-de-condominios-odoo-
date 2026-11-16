@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="rule_kabay_notification_company" model="ir.rule">
-        <field name="name">Kabay notification events: allowed companies</field>
+        <field name="name">Eventos de notificación Kabay: compañías autorizadas</field>
         <field name="model_id" ref="model_kabay_notification"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
     <record id="rule_kabay_notification_manager_all" model="ir.rule">
-        <field name="name">Kabay managers: company event history</field>
+        <field name="name">Gerencia Kabay: historial de eventos de la compañía</field>
         <field name="model_id" ref="model_kabay_notification"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_manager')), (4, ref('kabay_base.group_kabay_management'))]"/>
     </record>
     <record id="rule_kabay_notification_finance_categories" model="ir.rule">
-        <field name="name">Kabay Finance: accounting communication events</field>
+        <field name="name">Finanzas Kabay: eventos de comunicación contable</field>
         <field name="model_id" ref="model_kabay_notification"/>
         <field name="domain_force">[('category', 'in', ['billing', 'deposits', 'financing'])]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_finance'))]"/>
     </record>
     <record id="rule_kabay_notification_settings_company" model="ir.rule">
-        <field name="name">Kabay communication settings: allowed companies</field>
+        <field name="name">Configuración de comunicaciones Kabay: compañías autorizadas</field>
         <field name="model_id" ref="model_kabay_notification_settings"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_manager')), (4, ref('kabay_base.group_kabay_finance')), (4, ref('kabay_base.group_kabay_management'))]"/>
     </record>
     <record id="rule_kabay_notification_template_manager" model="ir.rule">
-        <field name="name">Kabay managers see only notification templates</field>
+        <field name="name">Gerencia Kabay: acceso solo a plantillas de notificación</field>
         <field name="model_id" ref="mail.model_mail_template"/>
         <field name="domain_force">[('model', '=', 'kabay.notification')]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_manager'))]"/>

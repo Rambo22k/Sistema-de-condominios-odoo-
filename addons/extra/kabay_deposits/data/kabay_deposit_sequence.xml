@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="seq_kabay_deposit_declaration" model="ir.sequence">
-        <field name="name">Kabay Deposit Declaration</field>
+        <field name="name">Declaración de depósito Kabay</field>
         <field name="code">kabay.deposit.declaration</field>
         <field name="prefix">DEP/%(year)s/</field>
         <field name="padding">5</field>

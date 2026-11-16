@@ -50,7 +50,7 @@ class KabayNotice(models.Model):
     reference = fields.Char(string="Referencia", required=True, default="Nuevo", copy=False, index=True, tracking=True)
     summary = fields.Char(string="Resumen", required=True, tracking=True)
     content = fields.Html(string="Contenido", required=True, sanitize=True, sanitize_overridable=False)
-    company_id = fields.Many2one("res.company", required=True, default=lambda self: self.env.company, index=True, tracking=True)
+    company_id = fields.Many2one("res.company", required=True, default=lambda self: self.env.company, index=True, tracking=True, string="Compañía")
     condominium_id = fields.Many2one("kabay.condominium", string="Condominio", ondelete="restrict", index=True, tracking=True, check_company=True)
     publication_condominium_ids = fields.Many2many(
         "kabay.condominium", "kabay_notice_publication_condominium_rel", "notice_id", "condominium_id",
@@ -59,7 +59,7 @@ class KabayNotice(models.Model):
     )
     publication_scope_locked = fields.Boolean(string="Alcance de publicación congelado", copy=False, groups="kabay_base.group_kabay_manager")
     building_id = fields.Many2one("kabay.building", string="Torre / edificio", ondelete="restrict", index=True, tracking=True, check_company=True)
-    scope = fields.Selection(NOTICE_SCOPES, required=True, default="condominium", tracking=True)
+    scope = fields.Selection(NOTICE_SCOPES, required=True, default="condominium", tracking=True, string="Alcance")
     apartment_ids = fields.Many2many(
         "kabay.apartment", "kabay_notice_apartment_rel", "notice_id", "apartment_id",
         string="Apartamentos", check_company=True,
@@ -68,9 +68,9 @@ class KabayNotice(models.Model):
         "res.partner", "kabay_notice_partner_rel", "notice_id", "partner_id", string="Residentes específicos",
     )
     target_role = fields.Selection(RESIDENT_ROLES, required=True, default="all", string="Tipo de residente", tracking=True)
-    notice_type = fields.Selection(NOTICE_TYPES, required=True, default="general", tracking=True)
-    priority = fields.Selection(NOTICE_PRIORITIES, required=True, default="normal", tracking=True)
-    state = fields.Selection(NOTICE_STATES, required=True, default="draft", index=True, tracking=True)
+    notice_type = fields.Selection(NOTICE_TYPES, required=True, default="general", tracking=True, string="Tipo de aviso")
+    priority = fields.Selection(NOTICE_PRIORITIES, required=True, default="normal", tracking=True, string="Prioridad")
+    state = fields.Selection(NOTICE_STATES, required=True, default="draft", index=True, tracking=True, string="Estado")
     create_user_id = fields.Many2one("res.users", string="Creado por", default=lambda self: self.env.user, readonly=True)
     published_by_id = fields.Many2one("res.users", string="Publicado por", readonly=True, tracking=True)
     published_at = fields.Datetime(string="Fecha de publicación efectiva", readonly=True, tracking=True)
@@ -82,10 +82,10 @@ class KabayNotice(models.Model):
     document_ids = fields.One2many("kabay.notice.document", "notice_id", string="Archivos")
     recipient_ids = fields.One2many("kabay.notice.recipient", "notice_id", string="Destinatarios")
     read_ids = fields.One2many("kabay.notice.read", "notice_id", string="Lecturas")
-    recipient_count = fields.Integer(compute="_compute_read_statistics", compute_sudo=True, groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management")
-    read_count = fields.Integer(compute="_compute_read_statistics", compute_sudo=True, groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management")
-    pending_count = fields.Integer(compute="_compute_read_statistics", compute_sudo=True, groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management")
-    read_percentage = fields.Float(compute="_compute_read_statistics", compute_sudo=True, digits=(5, 2), groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management")
+    recipient_count = fields.Integer(compute="_compute_read_statistics", compute_sudo=True, groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management", string="Cantidad de destinatarios")
+    read_count = fields.Integer(compute="_compute_read_statistics", compute_sudo=True, groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management", string="Cantidad de lecturas")
+    pending_count = fields.Integer(compute="_compute_read_statistics", compute_sudo=True, groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management", string="Cuotas pendientes")
+    read_percentage = fields.Float(compute="_compute_read_statistics", compute_sudo=True, digits=(5, 2), groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_management", string="Porcentaje de lectura")
 
     _reference_uniq = models.Constraint("unique(reference)", "La referencia del aviso debe ser única.")
 
@@ -387,11 +387,11 @@ class KabayNoticeRecipient(models.Model):
     _order = "notice_id, partner_id, apartment_id"
     _check_company_auto = True
 
-    notice_id = fields.Many2one("kabay.notice", required=True, ondelete="cascade", index=True, check_company=True)
-    company_id = fields.Many2one(related="notice_id.company_id", store=True, index=True)
-    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True)
-    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, check_company=True)
-    role = fields.Selection(RESIDENT_ROLES[1:], required=True, index=True)
+    notice_id = fields.Many2one("kabay.notice", required=True, ondelete="cascade", index=True, check_company=True, string="Aviso")
+    company_id = fields.Many2one(related="notice_id.company_id", store=True, index=True, string="Compañía")
+    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True, string="Contacto")
+    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, check_company=True, string="Apartamento")
+    role = fields.Selection(RESIDENT_ROLES[1:], required=True, index=True, string="Rol residencial")
 
     _recipient_uniq = models.Constraint("unique(notice_id, partner_id, apartment_id, role)", "El destinatario ya está incluido en el aviso para esa unidad y rol.")
 
@@ -422,13 +422,13 @@ class KabayNoticeRead(models.Model):
     _order = "first_read_at desc, id desc"
     _check_company_auto = True
 
-    notice_id = fields.Many2one("kabay.notice", required=True, ondelete="cascade", index=True, check_company=True)
-    company_id = fields.Many2one(related="notice_id.company_id", store=True, index=True)
-    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True)
-    user_id = fields.Many2one("res.users", required=True, ondelete="restrict", index=True)
-    apartment_id = fields.Many2one("kabay.apartment", ondelete="restrict", check_company=True)
-    first_read_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
-    last_read_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
+    notice_id = fields.Many2one("kabay.notice", required=True, ondelete="cascade", index=True, check_company=True, string="Aviso")
+    company_id = fields.Many2one(related="notice_id.company_id", store=True, index=True, string="Compañía")
+    partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True, string="Contacto")
+    user_id = fields.Many2one("res.users", required=True, ondelete="restrict", index=True, string="Usuario")
+    apartment_id = fields.Many2one("kabay.apartment", ondelete="restrict", check_company=True, string="Apartamento")
+    first_read_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True, string="Primera lectura")
+    last_read_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True, string="Última lectura")
 
     _notice_partner_uniq = models.Constraint("unique(notice_id, partner_id)", "Cada residente tiene un único acuse por aviso.")
 
@@ -470,12 +470,12 @@ class KabayNoticeDocument(models.Model):
     _order = "id"
     _check_company_auto = True
 
-    notice_id = fields.Many2one("kabay.notice", required=True, ondelete="cascade", index=True, check_company=True)
-    company_id = fields.Many2one(related="notice_id.company_id", store=True, index=True)
-    name = fields.Char(required=True)
+    notice_id = fields.Many2one("kabay.notice", required=True, ondelete="cascade", index=True, check_company=True, string="Aviso")
+    company_id = fields.Many2one(related="notice_id.company_id", store=True, index=True, string="Compañía")
+    name = fields.Char(required=True, string="Nombre")
     file_data = fields.Binary(string="Archivo", required=True, attachment=True)
     file_name = fields.Char(string="Nombre del archivo", required=True)
-    file_size = fields.Integer(compute="_compute_file_size")
+    file_size = fields.Integer(compute="_compute_file_size", string="Tamaño del archivo")
 
     @api.depends("file_data")
     def _compute_file_size(self):

@@ -26,24 +26,24 @@ class KabayDepositDeclaration(models.Model):
     _check_company_auto = True
 
     name = fields.Char(string="Número", required=True, default="Nuevo", copy=False, index=True, tracking=True)
-    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, tracking=True)
+    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, tracking=True, string="Apartamento")
     apartment_label = fields.Char(string="Nombre de unidad", related="apartment_id.name", store=True)
-    condominium_id = fields.Many2one(related="apartment_id.condominium_id", store=True, index=True)
-    company_id = fields.Many2one(related="apartment_id.company_id", store=True, index=True)
-    currency_id = fields.Many2one(related="company_id.currency_id", store=True)
-    declarant_partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True, tracking=True)
-    deposit_date = fields.Date(required=True, default=fields.Date.context_today, tracking=True)
-    amount = fields.Monetary(required=True, currency_field="currency_id", tracking=True)
-    bank_name = fields.Char(required=True, tracking=True)
+    condominium_id = fields.Many2one(related="apartment_id.condominium_id", store=True, index=True, string="Condominio")
+    company_id = fields.Many2one(related="apartment_id.company_id", store=True, index=True, string="Compañía")
+    currency_id = fields.Many2one(related="company_id.currency_id", store=True, string="Moneda")
+    declarant_partner_id = fields.Many2one("res.partner", required=True, ondelete="restrict", index=True, tracking=True, string="Residente declarante")
+    deposit_date = fields.Date(required=True, default=fields.Date.context_today, tracking=True, string="Fecha del depósito")
+    amount = fields.Monetary(required=True, currency_field="currency_id", tracking=True, string="Importe")
+    bank_name = fields.Char(required=True, tracking=True, string="Banco")
     destination_bank_id = fields.Many2one("res.partner.bank", string="Cuenta receptora", ondelete="restrict", check_company=True)
     reference = fields.Char(string="Referencia / autorización", required=True, tracking=True, index=True)
     proof = fields.Binary(string="Comprobante", attachment=True, required=True)
     proof_filename = fields.Char(string="Nombre del comprobante")
     resident_note = fields.Text(string="Observaciones del residente")
     allocation_ids = fields.One2many("kabay.deposit.allocation", "declaration_id", string="Facturas / cuotas declaradas")
-    allocated_amount = fields.Monetary(compute="_compute_allocated_amount", currency_field="currency_id")
-    state = fields.Selection(DEPOSIT_STATES, default="draft", required=True, index=True, tracking=True)
-    portal_state_label = fields.Char(compute="_compute_portal_state_label")
+    allocated_amount = fields.Monetary(compute="_compute_allocated_amount", currency_field="currency_id", string="Importe imputado")
+    state = fields.Selection(DEPOSIT_STATES, default="draft", required=True, index=True, tracking=True, string="Estado")
+    portal_state_label = fields.Char(compute="_compute_portal_state_label", string="Estado en el portal")
     reviewer_id = fields.Many2one("res.users", string="Responsable de revisión", readonly=True, tracking=True)
     reviewed_at = fields.Datetime(string="Fecha de revisión", readonly=True, tracking=True)
     rejected_by_id = fields.Many2one("res.users", string="Rechazado por", readonly=True, tracking=True)
@@ -432,7 +432,7 @@ class KabayDepositDeclaration(models.Model):
             if not statement_line.is_reconciled:
                 raise UserError(_("Odoo no confirmó la conciliación completa del movimiento bancario; no se aplicó la declaración."))
             declaration._transition({"state": "applied", "applied_at": fields.Datetime.now()})
-            declaration.message_post(body=_("Pagos creados y conciliación bancaria aplicada por %s mediante Accounting estándar.") % self.env.user.display_name)
+            declaration.message_post(body=_("Pagos creados y conciliación bancaria aplicada por %s mediante la Contabilidad estándar de Odoo.") % self.env.user.display_name)
         return True
 
     def action_portal_open(self):
@@ -448,12 +448,12 @@ class KabayDepositAllocation(models.Model):
     _order = "id"
     _check_company_auto = True
 
-    declaration_id = fields.Many2one("kabay.deposit.declaration", required=True, ondelete="cascade", index=True, check_company=True)
-    company_id = fields.Many2one(related="declaration_id.company_id", store=True, index=True)
-    currency_id = fields.Many2one(related="declaration_id.currency_id", store=True)
-    invoice_id = fields.Many2one("account.move", required=True, ondelete="restrict", index=True, check_company=True)
+    declaration_id = fields.Many2one("kabay.deposit.declaration", required=True, ondelete="cascade", index=True, check_company=True, string="Declaración de depósito")
+    company_id = fields.Many2one(related="declaration_id.company_id", store=True, index=True, string="Compañía")
+    currency_id = fields.Many2one(related="declaration_id.currency_id", store=True, string="Moneda")
+    invoice_id = fields.Many2one("account.move", string="Factura", required=True, ondelete="restrict", index=True, check_company=True)
     installment_id = fields.Many2one("kabay.financing.installment", string="Cuota de financiamiento", ondelete="restrict", check_company=True)
-    amount = fields.Monetary(required=True, currency_field="currency_id")
+    amount = fields.Monetary(required=True, currency_field="currency_id", string="Importe")
     payment_id = fields.Many2one("account.payment", string="Pago contable", readonly=True, copy=False, ondelete="restrict", check_company=True)
 
     _invoice_per_declaration_uniq = models.Constraint("unique(declaration_id, invoice_id)", "La factura solo puede aparecer una vez en cada declaración.")
@@ -505,8 +505,8 @@ class KabayDepositRejectWizard(models.TransientModel):
     _name = "kabay.deposit.reject.wizard"
     _description = "Motivo de rechazo de declaración de depósito"
 
-    declaration_id = fields.Many2one("kabay.deposit.declaration", required=True, readonly=True)
-    reason = fields.Text(required=True)
+    declaration_id = fields.Many2one("kabay.deposit.declaration", required=True, readonly=True, string="Declaración de depósito")
+    reason = fields.Text(required=True, string="Motivo")
 
     def action_confirm(self):
         self.ensure_one()

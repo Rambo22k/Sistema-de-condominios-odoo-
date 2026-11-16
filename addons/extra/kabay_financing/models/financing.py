@@ -21,35 +21,35 @@ class KabayFinancingContract(models.Model):
     _order = "start_date desc, name desc"
 
     name = fields.Char(string="Número de contrato", default="Nuevo", required=True, copy=False, tracking=True, index=True)
-    condominium_id = fields.Many2one("kabay.condominium", required=True, ondelete="restrict", index=True, tracking=True)
-    building_id = fields.Many2one("kabay.building", related="apartment_id.building_id", store=True, index=True)
-    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, tracking=True)
+    condominium_id = fields.Many2one("kabay.condominium", required=True, ondelete="restrict", index=True, tracking=True, string="Condominio")
+    building_id = fields.Many2one("kabay.building", related="apartment_id.building_id", store=True, index=True, string="Edificio / torre")
+    apartment_id = fields.Many2one("kabay.apartment", required=True, ondelete="restrict", index=True, tracking=True, string="Apartamento")
     buyer_id = fields.Many2one("res.partner", required=True, ondelete="restrict", string="Comprador", tracking=True, index=True)
     creditor_id = fields.Many2one("res.partner", required=True, ondelete="restrict", string="Vendedor / acreedor", tracking=True, index=True)
     company_id = fields.Many2one("res.company", required=True, ondelete="restrict", string="Empresa facturadora", default=lambda self: self.env.company, tracking=True, index=True)
-    currency_id = fields.Many2one("res.currency", required=True, default=lambda self: self.env.company.currency_id, tracking=True)
+    currency_id = fields.Many2one("res.currency", required=True, default=lambda self: self.env.company.currency_id, tracking=True, string="Moneda")
     product_id = fields.Many2one("product.product", required=True, ondelete="restrict", string="Producto de facturación")
-    purchase_price = fields.Monetary(required=True, currency_field="currency_id", tracking=True)
+    purchase_price = fields.Monetary(required=True, currency_field="currency_id", tracking=True, string="Precio de compra")
     down_payment = fields.Monetary(required=True, currency_field="currency_id", tracking=True, string="Inicial")
     financed_amount = fields.Monetary(compute="_compute_amounts", store=True, currency_field="currency_id", string="Saldo financiado")
     installment_count = fields.Integer(required=True, default=1, tracking=True, string="Número de cuotas")
-    frequency = fields.Selection(FREQUENCIES, required=True, default="monthly", tracking=True)
+    frequency = fields.Selection(FREQUENCIES, required=True, default="monthly", tracking=True, string="Frecuencia de pago")
     installment_amount = fields.Monetary(compute="_compute_amounts", store=True, currency_field="currency_id", string="Importe base de cuota")
     interest_rate = fields.Float(string="Tasa de interés (%)", default=0.0, digits=(8, 4), tracking=True,
         help="No se confirma un contrato con tasa distinta de cero hasta aprobar e implementar un método de cálculo.")
     interest_method = fields.Char(string="Método de interés aprobado", help="Documentación del método; el módulo aún bloquea la activación de tasas no cero hasta implementar su cálculo.")
-    start_date = fields.Date(required=True, tracking=True)
+    start_date = fields.Date(required=True, tracking=True, string="Fecha de inicio")
     due_day = fields.Integer(string="Día de vencimiento", help="Vacío: se usa el día de start_date. Valores admitidos: 1–31.")
     invoice_lead_days = fields.Integer(string="Generar borrador días antes", default=30, required=True,
         help="El botón de generación crea borradores dentro de este horizonte; nunca publica ni cobra.")
     state = fields.Selection([
         ("draft", "Borrador"), ("active", "Activo"), ("suspended", "Suspendido"), ("cancelled", "Cancelado"),
-    ], default="draft", required=True, tracking=True, index=True)
+    ], default="draft", required=True, tracking=True, index=True, string="Estado")
     installment_ids = fields.One2many("kabay.financing.installment", "contract_id", string="Calendario de cuotas")
     invoice_ids = fields.One2many("account.move", "kabay_financing_contract_id", string="Facturas relacionadas")
     note = fields.Text(string="Observaciones")
 
-    total_installments = fields.Integer(compute="_compute_progress")
+    total_installments = fields.Integer(string="Cantidad de cuotas", compute="_compute_progress")
     paid_installments = fields.Integer(compute="_compute_progress", string="Cuotas pagadas")
     pending_installments = fields.Integer(compute="_compute_progress", string="Cuotas pendientes")
     overdue_installments = fields.Integer(compute="_compute_progress", string="Cuotas vencidas")
@@ -249,24 +249,24 @@ class KabayFinancingInstallment(models.Model):
     _order = "contract_id, number"
     _check_company_auto = True
 
-    contract_id = fields.Many2one("kabay.financing.contract", required=True, ondelete="restrict", index=True, check_company=True)
-    company_id = fields.Many2one(related="contract_id.company_id", store=True, index=True)
-    condominium_id = fields.Many2one(related="contract_id.condominium_id", store=True, index=True)
-    apartment_id = fields.Many2one(related="contract_id.apartment_id", store=True, index=True)
-    buyer_id = fields.Many2one(related="contract_id.buyer_id", store=True, index=True)
-    currency_id = fields.Many2one(related="contract_id.currency_id", store=True)
-    number = fields.Integer(required=True, index=True)
-    due_date = fields.Date(required=True, index=True)
-    capital_amount = fields.Monetary(required=True, currency_field="currency_id")
-    interest_amount = fields.Monetary(required=True, currency_field="currency_id", default=0.0)
-    amount_total = fields.Monetary(compute="_compute_total", store=True, compute_sudo=False, currency_field="currency_id")
-    invoice_id = fields.Many2one("account.move", copy=False, ondelete="restrict", index=True, check_company=True)
+    contract_id = fields.Many2one("kabay.financing.contract", required=True, ondelete="restrict", index=True, check_company=True, string="Contrato de financiamiento")
+    company_id = fields.Many2one(related="contract_id.company_id", store=True, index=True, string="Compañía")
+    condominium_id = fields.Many2one(related="contract_id.condominium_id", store=True, index=True, string="Condominio")
+    apartment_id = fields.Many2one(related="contract_id.apartment_id", store=True, index=True, string="Apartamento")
+    buyer_id = fields.Many2one(related="contract_id.buyer_id", store=True, index=True, string="Comprador")
+    currency_id = fields.Many2one(related="contract_id.currency_id", store=True, string="Moneda")
+    number = fields.Integer(required=True, index=True, string="Número")
+    due_date = fields.Date(required=True, index=True, string="Fecha de vencimiento")
+    capital_amount = fields.Monetary(required=True, currency_field="currency_id", string="Capital")
+    interest_amount = fields.Monetary(required=True, currency_field="currency_id", default=0.0, string="Interés")
+    amount_total = fields.Monetary(compute="_compute_total", store=True, compute_sudo=False, currency_field="currency_id", string="Importe total")
+    invoice_id = fields.Many2one("account.move", string="Factura", copy=False, ondelete="restrict", index=True, check_company=True)
     amount_paid = fields.Monetary(compute="_compute_amounts", compute_sudo=False, currency_field="currency_id", string="Abonado según Contabilidad")
     balance = fields.Monetary(compute="_compute_amounts", compute_sudo=False, currency_field="currency_id", string="Saldo según Contabilidad / calendario")
     state = fields.Selection([
         ("scheduled", "Programada"), ("draft", "Factura en borrador"), ("pending", "Pendiente"),
         ("partial", "Parcialmente pagada"), ("paid", "Pagada"), ("overdue", "Vencida"), ("cancelled", "Cancelada"),
-    ], compute="_compute_amounts", compute_sudo=False, search="_search_state")
+    ], compute="_compute_amounts", compute_sudo=False, search="_search_state", string="Estado")
 
     _number_uniq = models.Constraint("unique(contract_id, number)", "El número de cuota debe ser único dentro del contrato.")
     _invoice_uniq = models.Constraint("unique(invoice_id)", "Una factura solo puede pertenecer a una cuota de financiamiento.")
@@ -461,10 +461,10 @@ class KabayFinancingInstallment(models.Model):
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    kabay_financing_contract_id = fields.Many2one("kabay.financing.contract", copy=False, ondelete="restrict", index=True, check_company=True)
-    kabay_financing_installment_id = fields.Many2one("kabay.financing.installment", copy=False, ondelete="restrict", index=True, check_company=True)
-    kabay_financing_apartment_id = fields.Many2one("kabay.apartment", copy=False, ondelete="restrict", index=True, check_company=True)
-    kabay_financing_creditor_id = fields.Many2one("res.partner", copy=False, ondelete="restrict", index=True, check_company=True)
+    kabay_financing_contract_id = fields.Many2one("kabay.financing.contract", copy=False, ondelete="restrict", index=True, check_company=True, string="Contrato de financiamiento")
+    kabay_financing_installment_id = fields.Many2one("kabay.financing.installment", copy=False, ondelete="restrict", index=True, check_company=True, string="Cuota de financiamiento")
+    kabay_financing_apartment_id = fields.Many2one("kabay.apartment", copy=False, ondelete="restrict", index=True, check_company=True, string="Apartamento financiado")
+    kabay_financing_creditor_id = fields.Many2one("res.partner", copy=False, ondelete="restrict", index=True, check_company=True, string="Acreedor del financiamiento")
     _kabay_financing_installment_uniq = models.Constraint(
         "unique(kabay_financing_installment_id)", "Una cuota solo puede tener una factura de financiamiento."
     )
@@ -505,7 +505,7 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
-    kabay_financing_installment_id = fields.Many2one("kabay.financing.installment", copy=False, ondelete="restrict", index=True, check_company=True)
+    kabay_financing_installment_id = fields.Many2one("kabay.financing.installment", copy=False, ondelete="restrict", index=True, check_company=True, string="Cuota de financiamiento")
 
     @api.constrains("move_id", "kabay_financing_installment_id")
     def _check_kabay_financing_line_identity(self):

@@ -313,7 +313,7 @@ class HelpdeskTicket(models.Model):
 class MailMail(models.Model):
     _inherit = "mail.mail"
 
-    kabay_notification_id = fields.Many2one("kabay.notification", index=True, ondelete="set null", copy=False)
+    kabay_notification_id = fields.Many2one("kabay.notification", index=True, ondelete="set null", copy=False, string="Notificación Kabay")
 
     def write(self, vals):
         result = super().write(vals)

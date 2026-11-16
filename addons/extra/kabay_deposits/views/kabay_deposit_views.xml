@@ -31,7 +31,7 @@
                 <header>
                     <button name="action_start_review" type="object" string="Iniciar revisión" class="btn-primary" invisible="state != 'submitted'" groups="kabay_base.group_kabay_finance"/>
                     <button name="action_verify_bank_line" type="object" string="Verificar movimiento" class="btn-primary" invisible="state != 'reviewing'" groups="kabay_base.group_kabay_finance"/>
-                    <button name="action_apply" type="object" string="Aplicar pago" class="btn-primary" invisible="state != 'verified'" groups="kabay_base.group_kabay_finance" confirm="Se crearán pagos mediante Accounting y se conciliará el movimiento bancario. ¿Continuar?"/>
+                    <button name="action_apply" type="object" string="Aplicar pago" class="btn-primary" invisible="state != 'verified'" groups="kabay_base.group_kabay_finance" confirm="Se crearán pagos mediante la Contabilidad estándar de Odoo y se conciliará el movimiento bancario. ¿Continuar?"/>
                     <button name="action_open_reject_wizard" type="object" string="Rechazar" invisible="state not in ('submitted','reviewing')" groups="kabay_base.group_kabay_finance"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,reviewing,verified,applied,rejected"/>
                 </header>

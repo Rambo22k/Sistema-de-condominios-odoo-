@@ -7,24 +7,24 @@ class KabayNotificationSettings(models.Model):
     _description = "Configuración de comunicaciones Kabay"
     _order = "company_id"
 
-    company_id = fields.Many2one("res.company", required=True, ondelete="cascade", index=True)
-    active = fields.Boolean(default=True)
+    company_id = fields.Many2one("res.company", required=True, ondelete="cascade", index=True, string="Compañía")
+    active = fields.Boolean(default=True, string="Activo")
     delivery_enabled = fields.Boolean(
         string="Permitir encolar correos",
         default=False,
         help="Solo habilite después de configurar y verificar el correo saliente nativo de Odoo.",
     )
-    billing_enabled = fields.Boolean(default=True)
-    deposits_enabled = fields.Boolean(default=True)
-    helpdesk_enabled = fields.Boolean(default=True)
-    notices_enabled = fields.Boolean(default=True)
-    financing_enabled = fields.Boolean(default=True)
-    reminder_days_before_first = fields.Integer(default=7)
-    reminder_days_before_second = fields.Integer(default=3)
-    reminder_days_before_due = fields.Integer(default=0)
-    reminder_days_after = fields.Integer(default=7)
-    max_attempts = fields.Integer(default=3)
-    retry_minutes = fields.Integer(default=30)
+    billing_enabled = fields.Boolean(default=True, string="Habilitar facturación")
+    deposits_enabled = fields.Boolean(default=True, string="Habilitar depósitos")
+    helpdesk_enabled = fields.Boolean(default=True, string="Habilitar solicitudes")
+    notices_enabled = fields.Boolean(default=True, string="Habilitar avisos")
+    financing_enabled = fields.Boolean(default=True, string="Habilitar financiamiento")
+    reminder_days_before_first = fields.Integer(default=7, string="Días antes para el primer recordatorio")
+    reminder_days_before_second = fields.Integer(default=3, string="Días antes para el segundo recordatorio")
+    reminder_days_before_due = fields.Integer(default=0, string="Días antes del vencimiento")
+    reminder_days_after = fields.Integer(default=7, string="Días después del vencimiento")
+    max_attempts = fields.Integer(default=3, string="Máximo de intentos")
+    retry_minutes = fields.Integer(default=30, string="Minutos entre reintentos")
     billing_template_id = fields.Many2one("mail.template", string="Plantilla de facturación")
     deposits_template_id = fields.Many2one("mail.template", string="Plantilla de depósitos")
     helpdesk_template_id = fields.Many2one("mail.template", string="Plantilla de solicitudes")

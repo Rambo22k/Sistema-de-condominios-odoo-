@@ -339,3 +339,15 @@ class TestKabayNotifications(TransactionCase):
             ("id", "in", [billing.id, ticket.id]),
         ])
         self.assertEqual(visible.ids, billing.ids)
+
+    def test_27_system_admin_can_read_standard_portal_invite_templates(self):
+        template = self.env["mail.template"].sudo().create({
+            "name": "Portal invite access QA",
+            "model_id": self.env["ir.model"]._get_id("res.partner"),
+            "subject": "Portal invite QA",
+            "body_html": "<p>QA only</p>",
+        })
+        system_admin = self.env.ref("base.user_admin")
+        self.assertEqual(template.with_user(system_admin).read(["name"])[0]["name"], template.name)
+        with self.assertRaises(AccessError):
+            template.with_user(self.manager_user).read(["name"])

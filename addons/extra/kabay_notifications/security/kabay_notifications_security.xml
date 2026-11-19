@@ -29,4 +29,10 @@
         <field name="domain_force">[('model', '=', 'kabay.notification')]</field>
         <field name="groups" eval="[(4, ref('kabay_base.group_kabay_manager'))]"/>
     </record>
+    <record id="rule_kabay_notification_template_system" model="ir.rule">
+        <field name="name">Administración del sistema: acceso a plantillas de correo</field>
+        <field name="model_id" ref="mail.model_mail_template"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
 </odoo>

@@ -75,7 +75,9 @@ class KabayDepositPortal(http.Controller):
                 if not math.isfinite(allocation_amount) or allocation_amount <= 0:
                     raise ValidationError(_("Indique un importe positivo para cada factura seleccionada."))
                 allocations.append((0, 0, {"invoice_id": invoice_id, "amount": allocation_amount}))
-            declaration_model = request.env["kabay.deposit.declaration"]
+            declaration_model = request.env["kabay.deposit.declaration"].with_context(
+                mail_create_nosubscribe=True, mail_notrack=True,
+            )
             with request.env.cr.savepoint():
                 declaration = declaration_model.create({
                     "apartment_id": apartment_id,

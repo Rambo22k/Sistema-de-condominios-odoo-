@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
+from odoo.addons.kabay_base.tests.common import create_kabay_test_company, set_test_partner_accounts
 
 
 @tagged("post_install", "-at_install")
@@ -10,9 +11,9 @@ class TestKabayFinancing(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.company = cls.env["res.company"].search([("name", "=", "Kabay RD - Desarrollo")], limit=1)
-        if not cls.company or cls.company.currency_id.name != "DOP":
-            raise AssertionError("La compañía DOP de QA es requisito de esta fase.")
+        cls.company, cls.accounts, cls.sale_journal, cls.bank_journal = create_kabay_test_company(
+            cls.env, "Kabay Financing Test Company",
+        )
         cls.condominium = cls.env["kabay.condominium"].create({
             "name": "Condominio test financiamiento", "code": "T-FIN", "company_id": cls.company.id,
             "country_id": cls.company.country_id.id,
@@ -21,9 +22,9 @@ class TestKabayFinancing(TransactionCase):
         cls.apartment = cls.env["kabay.apartment"].create({"name": "F-01", "code": "TF-A01", "building_id": cls.building.id})
         cls.buyer = cls.env["res.partner"].create({"name": "Comprador test financiamiento"})
         cls.creditor = cls.env["res.partner"].create({"name": "Acreedor test financiamiento"})
-        cls.income_account = cls.env["account.account"].with_company(cls.company).search([
-            ("company_ids", "in", cls.company.id), ("code", "=", "41020100"), ("account_type", "=", "income"),
-        ], limit=1)
+        set_test_partner_accounts(cls.buyer, cls.company, cls.accounts)
+        set_test_partner_accounts(cls.creditor, cls.company, cls.accounts)
+        cls.income_account = cls.accounts["41020100"]
         cls.sale_tax = cls.company.account_sale_tax_id
         cls.product = cls.env["product.product"].with_company(cls.company).create({
             "name": "Producto servicio test financiamiento", "type": "service",
@@ -135,12 +136,16 @@ class TestKabayFinancing(TransactionCase):
         quarterly.action_confirm()
         self.assertEqual(quarterly.installment_ids.mapped("due_date"), [date(2027, 1, 31), date(2027, 4, 30), date(2027, 7, 31)])
 
-    def test_interest_rate_requires_approved_implementation(self):
-        contract = self._contract(interest_rate=5, interest_method="Método propuesto")
-        with self.assertRaises(UserError):
-            contract.action_confirm()
-        self.assertEqual(contract.state, "draft")
-        self.assertFalse(contract.installment_ids)
+    def test_interest_rate_calculates_amortized_schedule_and_method_automatically(self):
+        contract = self._contract(interest_rate=5)
+        self.assertIn("Amortización francesa", contract.interest_method)
+        self.assertGreater(contract.installment_amount, 40_000)
+        contract.action_confirm()
+        self.assertEqual(contract.state, "active")
+        self.assertEqual(len(contract.installment_ids), 60)
+        self.assertEqual(contract.installment_ids[0].interest_amount, 10_000)
+        self.assertAlmostEqual(sum(contract.installment_ids.mapped("capital_amount")), 2_400_000, places=2)
+        self.assertGreater(sum(contract.installment_ids.mapped("interest_amount")), 0)
 
     def test_invoice_draft_is_individual_and_idempotent(self):
         contract = self._contract()

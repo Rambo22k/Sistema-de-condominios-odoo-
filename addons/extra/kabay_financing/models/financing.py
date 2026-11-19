@@ -34,10 +34,13 @@ class KabayFinancingContract(models.Model):
     financed_amount = fields.Monetary(compute="_compute_amounts", store=True, currency_field="currency_id", string="Saldo financiado")
     installment_count = fields.Integer(required=True, default=1, tracking=True, string="Número de cuotas")
     frequency = fields.Selection(FREQUENCIES, required=True, default="monthly", tracking=True, string="Frecuencia de pago")
-    installment_amount = fields.Monetary(compute="_compute_amounts", store=True, currency_field="currency_id", string="Importe base de cuota")
-    interest_rate = fields.Float(string="Tasa de interés (%)", default=0.0, digits=(8, 4), tracking=True,
-        help="No se confirma un contrato con tasa distinta de cero hasta aprobar e implementar un método de cálculo.")
-    interest_method = fields.Char(string="Método de interés aprobado", help="Documentación del método; el módulo aún bloquea la activación de tasas no cero hasta implementar su cálculo.")
+    installment_amount = fields.Monetary(compute="_compute_amounts", store=True, currency_field="currency_id", string="Cuota calculada")
+    total_interest = fields.Monetary(compute="_compute_amounts", store=True, currency_field="currency_id", string="Interés total calculado")
+    interest_rate = fields.Float(string="Tasa anual de interés (%)", default=0.0, digits=(8, 4), tracking=True,
+        help="Tasa anual nominal. El sistema calcula las cuotas amortizadas sobre saldo insoluto.")
+    interest_method = fields.Char(compute="_compute_interest_method", store=True, string="Método de interés (automático)")
+    grace_days = fields.Integer(string="Días calendario de gracia", default=5, required=True, tracking=True,
+        help="Días después del vencimiento antes de marcar el saldo como mora. No genera un cargo financiero.")
     start_date = fields.Date(required=True, tracking=True, string="Fecha de inicio")
     due_day = fields.Integer(string="Día de vencimiento", help="Vacío: se usa el día de start_date. Valores admitidos: 1–31.")
     invoice_lead_days = fields.Integer(string="Generar borrador días antes", default=30, required=True,
@@ -70,15 +73,36 @@ class KabayFinancingContract(models.Model):
                 vals["name"] = self.env["ir.sequence"].next_by_code("kabay.financing.contract") or "Nuevo"
         return super().create(vals_list)
 
-    @api.depends("purchase_price", "down_payment", "installment_count", "currency_id")
+    @api.depends("purchase_price", "down_payment", "installment_count", "frequency", "interest_rate", "currency_id")
     def _compute_amounts(self):
         for contract in self:
             financed = max(contract.purchase_price - contract.down_payment, 0.0)
             contract.financed_amount = financed
-            contract.installment_amount = contract.currency_id.round(financed / contract.installment_count) if contract.installment_count and contract.currency_id else 0.0
+            periods_per_year = {"monthly": 12, "bimonthly": 6, "quarterly": 4, "yearly": 1}.get(contract.frequency, 12)
+            periodic_rate = contract.interest_rate / 100.0 / periods_per_year
+            if not contract.installment_count or not contract.currency_id:
+                payment = 0.0
+            elif periodic_rate:
+                payment = financed * periodic_rate / (1 - (1 + periodic_rate) ** -contract.installment_count)
+            else:
+                payment = financed / contract.installment_count
+            contract.installment_amount = contract.currency_id.round(payment) if contract.currency_id else payment
+            contract.total_interest = max(contract.currency_id.round(payment * contract.installment_count - financed), 0.0) if contract.currency_id else 0.0
+
+    @api.depends("interest_rate", "frequency")
+    def _compute_interest_method(self):
+        labels = {"monthly": "mensuales", "bimonthly": "bimestrales", "quarterly": "trimestrales", "yearly": "anuales"}
+        for contract in self:
+            if contract.interest_rate:
+                contract.interest_method = _("Amortización francesa (%s%% anual sobre saldo insoluto), cuotas %s") % (
+                    f"{contract.interest_rate:.4f}", labels.get(contract.frequency, "mensuales"),
+                )
+            else:
+                contract.interest_method = _("Sin interés (0 %)")
 
     @api.depends("installment_ids", "installment_ids.state", "installment_ids.amount_paid", "installment_ids.balance",
-                 "installment_ids.due_date", "installment_ids.invoice_id.amount_total", "installment_ids.invoice_id.amount_residual")
+                 "installment_ids.due_date", "installment_ids.invoice_id.amount_total", "installment_ids.invoice_id.amount_residual",
+                 "installment_ids.invoice_id.payment_state", "installment_ids.invoice_id.matched_payment_ids.date")
     def _compute_progress(self):
         for contract in self:
             lines = contract.installment_ids
@@ -112,7 +136,7 @@ class KabayFinancingContract(models.Model):
                 if partner.company_id and partner.company_id != contract.company_id:
                     raise ValidationError(_("Comprador y acreedor deben ser contactos globales o de la empresa facturadora."))
 
-    @api.constrains("purchase_price", "down_payment", "installment_count", "due_day", "invoice_lead_days", "interest_rate")
+    @api.constrains("purchase_price", "down_payment", "installment_count", "due_day", "invoice_lead_days", "interest_rate", "grace_days")
     def _check_financial_values(self):
         for contract in self:
             if contract.purchase_price <= 0 or contract.down_payment < 0 or contract.down_payment >= contract.purchase_price:
@@ -125,13 +149,15 @@ class KabayFinancingContract(models.Model):
                 raise ValidationError(_("Los días previos para generar facturas no pueden ser negativos."))
             if contract.interest_rate < 0:
                 raise ValidationError(_("La tasa de interés no puede ser negativa."))
+            if contract.grace_days < 0 or contract.grace_days > 60:
+                raise ValidationError(_("Los días de gracia deben estar entre 0 y 60."))
 
     def write(self, vals):
         if "state" in vals:
             raise UserError(_("El estado del contrato solo cambia mediante sus acciones autorizadas."))
         financial_fields = {"condominium_id", "apartment_id", "buyer_id", "creditor_id", "company_id", "currency_id",
                             "product_id", "purchase_price", "down_payment", "installment_count", "frequency", "interest_rate",
-                            "start_date", "due_day"}
+                            "start_date", "due_day", "grace_days"}
         if financial_fields.intersection(vals) and any(contract.state != "draft" for contract in self):
             raise UserError(_("Los términos financieros quedan históricos al activar el contrato. Cree una modificación autorizada o un nuevo contrato."))
         return super().write(vals)
@@ -146,8 +172,6 @@ class KabayFinancingContract(models.Model):
             if contract.state != "draft":
                 continue
             contract._check_financial_values()
-            if contract.interest_rate:
-                raise UserError(_("No se puede activar una tasa distinta de 0 % hasta definir, validar e implementar su método de cálculo."))
             if not contract.company_id or not contract.company_id.currency_id:
                 raise UserError(_("Configure una empresa y moneda facturadora válidas."))
             if contract.installment_ids:
@@ -160,8 +184,14 @@ class KabayFinancingContract(models.Model):
         for contract in self:
             count = contract.installment_count
             currency = contract.currency_id
-            standard_amount = currency.round(contract.financed_amount / count)
+            periods_per_year = {"monthly": 12, "bimonthly": 6, "quarterly": 4, "yearly": 1}[contract.frequency]
+            periodic_rate = contract.interest_rate / 100.0 / periods_per_year
+            if periodic_rate:
+                payment = currency.round(contract.financed_amount * periodic_rate / (1 - (1 + periodic_rate) ** -count))
+            else:
+                payment = currency.round(contract.financed_amount / count)
             allocated = 0.0
+            balance = contract.financed_amount
             due_day = contract.due_day or contract.start_date.day
             interval = {"monthly": 1, "bimonthly": 2, "quarterly": 3, "yearly": 12}[contract.frequency]
             vals_list = []
@@ -170,14 +200,16 @@ class KabayFinancingContract(models.Model):
                 year, month_zero = divmod(month_index, 12)
                 month = month_zero + 1
                 day = min(due_day, monthrange(year, month)[1])
-                capital = currency.round(contract.financed_amount - allocated) if number == count else standard_amount
+                interest = currency.round(balance * periodic_rate)
+                capital = currency.round(contract.financed_amount - allocated) if number == count else min(currency.round(payment - interest), currency.round(contract.financed_amount - allocated))
                 allocated += capital
+                balance = max(currency.round(balance - capital), 0.0)
                 vals_list.append({
                     "contract_id": contract.id,
                     "number": number,
                     "due_date": date(year, month, day),
                     "capital_amount": capital,
-                    "interest_amount": 0.0,
+                    "interest_amount": interest,
                 })
             self.env["kabay.financing.installment"]._create_schedule_lines(vals_list)
 
@@ -257,12 +289,25 @@ class KabayFinancingInstallment(models.Model):
     currency_id = fields.Many2one(related="contract_id.currency_id", store=True, string="Moneda")
     number = fields.Integer(required=True, index=True, string="Número")
     due_date = fields.Date(required=True, index=True, string="Fecha de vencimiento")
+    grace_end_date = fields.Date(compute="_compute_grace_end_date", compute_sudo=False, store=True, string="Fin del período de gracia")
     capital_amount = fields.Monetary(required=True, currency_field="currency_id", string="Capital")
     interest_amount = fields.Monetary(required=True, currency_field="currency_id", default=0.0, string="Interés")
     amount_total = fields.Monetary(compute="_compute_total", store=True, compute_sudo=False, currency_field="currency_id", string="Importe total")
     invoice_id = fields.Many2one("account.move", string="Factura", copy=False, ondelete="restrict", index=True, check_company=True)
+    invoice_number = fields.Char(compute="_compute_payment_tracking", string="Número de factura")
     amount_paid = fields.Monetary(compute="_compute_amounts", compute_sudo=False, currency_field="currency_id", string="Abonado según Contabilidad")
     balance = fields.Monetary(compute="_compute_amounts", compute_sudo=False, currency_field="currency_id", string="Saldo según Contabilidad / calendario")
+    payment_date = fields.Date(compute="_compute_payment_tracking", string="Fecha del último pago conciliado")
+    payment_timing = fields.Selection([
+        ("scheduled", "Aún no facturada"), ("draft", "Factura en borrador"),
+        ("before_due", "Pendiente, antes del vencimiento"), ("grace", "Dentro de los días de gracia"),
+        ("in_mora", "En mora"), ("paid_on_time", "Pagada a tiempo"),
+        ("paid_grace", "Pagada durante la gracia"), ("paid_late", "Pagada con atraso"),
+        ("paid_date_unknown", "Pagada; fecha no disponible"),
+        ("partial", "Pago parcial"), ("partial_late", "Pago parcial en mora"),
+    ], compute="_compute_payment_tracking", string="Situación del pago")
+    days_in_arrears = fields.Integer(compute="_compute_payment_tracking", string="Días en mora")
+    balance_in_arrears = fields.Monetary(compute="_compute_payment_tracking", currency_field="currency_id", string="Saldo en mora")
     state = fields.Selection([
         ("scheduled", "Programada"), ("draft", "Factura en borrador"), ("pending", "Pendiente"),
         ("partial", "Parcialmente pagada"), ("paid", "Pagada"), ("overdue", "Vencida"), ("cancelled", "Cancelada"),
@@ -286,8 +331,13 @@ class KabayFinancingInstallment(models.Model):
         for line in self:
             line.amount_total = line.capital_amount + line.interest_amount
 
+    @api.depends("due_date", "contract_id.grace_days")
+    def _compute_grace_end_date(self):
+        for line in self:
+            line.grace_end_date = line.due_date + timedelta(days=line.contract_id.grace_days) if line.due_date else False
+
     @api.depends("invoice_id.state", "invoice_id.payment_state", "invoice_id.amount_total",
-                 "invoice_id.amount_residual", "due_date", "contract_id.state")
+                 "invoice_id.amount_residual", "due_date", "contract_id.state", "contract_id.grace_days")
     def _compute_amounts(self):
         today = fields.Date.context_today(self)
         for line in self:
@@ -309,10 +359,10 @@ class KabayFinancingInstallment(models.Model):
             elif invoice and invoice.state == "posted":
                 if invoice.payment_state == "paid":
                     line.state = "paid"
+                elif today > (line.due_date + timedelta(days=line.contract_id.grace_days)) and invoice.amount_residual > 0:
+                    line.state = "overdue"
                 elif invoice.payment_state in ("partial", "in_payment") or (invoice.amount_residual > 0 and invoice.amount_residual < invoice.amount_total):
                     line.state = "partial"
-                elif line.due_date < today and invoice.amount_residual > 0:
-                    line.state = "overdue"
                 else:
                     line.state = "pending"
             elif line.contract_id.state == "cancelled":
@@ -320,30 +370,87 @@ class KabayFinancingInstallment(models.Model):
             else:
                 line.state = "scheduled"
 
+    @api.depends("due_date", "contract_id.grace_days", "invoice_id.state", "invoice_id.name",
+                 "invoice_id.amount_residual", "invoice_id.payment_state", "invoice_id.matched_payment_ids.date")
+    def _compute_payment_tracking(self):
+        today = fields.Date.context_today(self)
+        for line in self:
+            grace_end = line.due_date + timedelta(days=line.contract_id.grace_days) if line.due_date else False
+            invoice = line.invoice_id.sudo()
+            if not invoice:
+                line.invoice_number = _("No emitida")
+            elif invoice.state == "posted" and invoice.name != "/":
+                line.invoice_number = invoice.name
+            else:
+                line.invoice_number = _("Pendiente de publicar")
+            payment_dates = invoice.matched_payment_ids.mapped("date") if invoice else []
+            payment_date = max(payment_dates, default=False)
+            line.payment_date = payment_date
+            is_paid = bool(invoice and invoice.state == "posted" and invoice.payment_state == "paid")
+            residual = invoice.amount_residual if invoice and invoice.state == "posted" else 0.0
+            if not invoice:
+                line.payment_timing = "scheduled"
+            elif invoice.state == "draft":
+                line.payment_timing = "draft"
+            elif is_paid:
+                if not payment_date:
+                    line.payment_timing = "paid_date_unknown"
+                elif payment_date <= line.due_date:
+                    line.payment_timing = "paid_on_time"
+                elif payment_date <= grace_end:
+                    line.payment_timing = "paid_grace"
+                else:
+                    line.payment_timing = "paid_late"
+            elif invoice.payment_state in ("partial", "in_payment"):
+                line.payment_timing = "partial_late" if today > grace_end else "partial"
+            elif today <= line.due_date:
+                line.payment_timing = "before_due"
+            elif today <= grace_end:
+                line.payment_timing = "grace"
+            else:
+                line.payment_timing = "in_mora"
+            reference_date = payment_date if is_paid else today
+            line.days_in_arrears = max((reference_date - grace_end).days, 0) if grace_end and reference_date else 0
+            line.balance_in_arrears = residual if residual > 0 and today > grace_end else 0.0
+
     @api.model
     def _search_state(self, operator, value):
-        if operator not in ("=", "!=") or value not in dict(self._fields["state"].selection):
+        allowed_operators = {"=", "!=", "in", "not in"}
+        allowed_states = set(dict(self._fields["state"].selection))
+        requested_states = value if operator in ("in", "not in") else [value]
+        if operator not in allowed_operators or not set(requested_states).issubset(allowed_states):
             raise ValueError(_("Filtro de estado no compatible."))
         today = fields.Date.context_today(self)
         domains = {
             "scheduled": [("invoice_id", "=", False), ("contract_id.state", "!=", "cancelled")],
             "draft": [("invoice_id.state", "=", "draft")],
-            "pending": [("invoice_id.state", "=", "posted"), ("invoice_id.payment_state", "not in", ["paid", "partial", "in_payment"]), ("invoice_id.amount_residual", ">", 0), ("due_date", ">=", today)],
+            "pending": [("invoice_id.state", "=", "posted"), ("invoice_id.payment_state", "not in", ["paid", "partial", "in_payment"]), ("invoice_id.amount_residual", ">", 0)],
             "partial": [("invoice_id.state", "=", "posted"), ("invoice_id.payment_state", "in", ["partial", "in_payment"])],
             "paid": [("invoice_id.state", "=", "posted"), ("invoice_id.payment_state", "=", "paid")],
-            "overdue": [("invoice_id.state", "=", "posted"), ("invoice_id.payment_state", "not in", ["paid", "partial", "in_payment"]), ("invoice_id.amount_residual", ">", 0), ("due_date", "<", today)],
+            "overdue": [("invoice_id.state", "=", "posted"), ("invoice_id.amount_residual", ">", 0)],
             "cancelled": ["|", ("invoice_id.state", "=", "cancel"), "&", ("invoice_id", "=", False), ("contract_id.state", "=", "cancelled")],
         }
-        domain = domains[value]
-        return domain if operator == "=" else ["!"] + domain
+        candidate_domains = [domains[state] for state in requested_states]
+        if len(candidate_domains) == 1:
+            candidate_domain = candidate_domains[0]
+        else:
+            candidate_domain = []
+            for domain in candidate_domains[:-1]:
+                candidate_domain.extend(["|"] + domain)
+            candidate_domain.extend(candidate_domains[-1])
+        candidates = self.search(candidate_domain)
+        if requested_states and set(requested_states) <= {"pending", "partial", "paid", "overdue"}:
+            candidates = candidates.filtered(lambda line: line.state in requested_states)
+        elif "overdue" in requested_states or "pending" in requested_states or "partial" in requested_states:
+            candidates = candidates.filtered(lambda line: line.state in requested_states)
+        matching_ids = candidates.ids
+        return [("id", "not in" if operator in ("!=", "not in") else "in", matching_ids)]
 
     @api.constrains("number", "capital_amount", "interest_amount", "due_date", "contract_id")
     def _check_installment(self):
         for line in self:
             if line.number <= 0 or line.capital_amount < 0 or line.interest_amount < 0:
                 raise ValidationError(_("La cuota debe tener número positivo y capital/interés no negativos."))
-            if line.contract_id.interest_rate and not line.contract_id.interest_method:
-                raise ValidationError(_("Defina y valide un método de interés antes de registrar intereses."))
             if line.interest_amount and not line.contract_id.interest_rate:
                 raise ValidationError(_("No se pueden añadir intereses cuando el contrato tiene tasa 0 %."))
 
@@ -386,8 +493,6 @@ class KabayFinancingInstallment(models.Model):
             contract = line.contract_id
             if contract.state != "active":
                 continue
-            if contract.interest_rate:
-                raise UserError(_("No se generan facturas con intereses: falta un método de cálculo aprobado."))
             company = contract.company_id
             product = contract.product_id.with_company(company)
             journal = self.env["account.journal"].search([("company_id", "=", company.id), ("type", "=", "sale")], limit=1)

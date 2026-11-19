@@ -4,6 +4,7 @@ from datetime import timedelta
 from odoo import Command, fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
+from odoo.addons.kabay_base.tests.common import create_kabay_test_company
 
 
 @tagged("post_install", "-at_install")
@@ -11,9 +12,9 @@ class TestKabayNotices(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.company = cls.env["res.company"].search([("name", "=", "Kabay RD - Desarrollo")], limit=1)
-        if not cls.company:
-            raise AssertionError("La empresa Kabay RD - Desarrollo debe existir.")
+        cls.company, cls.accounts, cls.sales_journal, cls.bank_journal = create_kabay_test_company(
+            cls.env, "Kabay Notices Test Company",
+        )
         cls.condominium = cls.env["kabay.condominium"].create({
             "name": "QA Avisos Central", "code": "NOTICE-QA-A", "company_id": cls.company.id,
         })

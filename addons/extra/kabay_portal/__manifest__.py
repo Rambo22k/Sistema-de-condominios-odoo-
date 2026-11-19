@@ -1,7 +1,7 @@
 {
     "name": "Portal de Residentes Kabay",
     "summary": "Portal Kabay unificado para residentes",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Services/Condominium",
     "author": "Kabay Group",
     "license": "LGPL-3",

@@ -39,7 +39,7 @@ Los puertos publicados por defecto son Odoo `18020`, eventos Odoo `16020` y Post
 7. Consulta los indicadores de Finanzas y Gerencia en Reportes.
 8. Revisa Comunicaciones/Notificaciones y la cola de correo. Configura SMTP solo con datos autorizados y prueba primero en un buzón controlado.
 
-El Portal requiere un usuario Portal ligado a un contacto y a una relación residencial vigente. Para cobros dominicanos, valida con Finanzas el producto, impuestos, cuentas y configuración fiscal antes de publicar facturas. Los datos QA y el diario bancario simulado no representan operaciones reales.
+El Portal requiere un usuario Portal ligado a un contacto y a una relación residencial vigente. Para cobros dominicanos, valida con Finanzas el producto, impuestos, cuentas y configuración fiscal antes de publicar facturas. El repositorio no incluye datos semilla: identifica como QA los registros y movimientos bancarios simulados que cargues; no representan operaciones reales.
 
 ## Operación frecuente
 

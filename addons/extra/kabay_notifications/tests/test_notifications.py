@@ -5,6 +5,7 @@ from unittest.mock import patch
 from odoo import Command, fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import TransactionCase, tagged
+from odoo.addons.kabay_base.tests.common import create_kabay_test_company, set_test_partner_accounts
 
 
 @tagged("post_install", "-at_install")
@@ -12,7 +13,9 @@ class TestKabayNotifications(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.company = cls.env["res.company"].search([("name", "=", "Kabay RD - Desarrollo")], limit=1) or cls.env.company
+        cls.company, cls.accounts, cls.sales_journal, cls.bank_journal = create_kabay_test_company(
+            cls.env, "Kabay Notifications Test Company",
+        )
         cls.condo = cls.env["kabay.condominium"].create({
             "name": "QA Notifications Condo", "code": "NOTIF-QA", "company_id": cls.company.id,
         })
@@ -26,6 +29,8 @@ class TestKabayNotifications(TransactionCase):
             "name": "Resident Notification QA", "email": "notification-qa@example.invalid",
         })
         cls.no_email_partner = cls.env["res.partner"].create({"name": "Resident Without Email QA"})
+        set_test_partner_accounts(cls.partner, cls.company, cls.accounts)
+        set_test_partner_accounts(cls.no_email_partner, cls.company, cls.accounts)
         cls.relation = cls.env["kabay.apartment.relation"].create({
             "partner_id": cls.partner.id, "apartment_id": cls.apartment.id,
             "role": "owner", "date_start": fields.Date.today(),
@@ -53,9 +58,7 @@ class TestKabayNotifications(TransactionCase):
             ("company_id", "=", cls.company.id), ("kabay_resident_team", "=", True),
         ], limit=1)
         cls.category = cls.env.ref("kabay_helpdesk.category_maintenance")
-        cls.income_account = cls.env["account.account"].with_company(cls.company).search([
-            ("company_ids", "in", cls.company.id), ("code", "=", "41020100"), ("account_type", "=", "income"),
-        ], limit=1)
+        cls.income_account = cls.accounts["41020100"]
         cls.product = cls.env["product.product"].with_company(cls.company).create({
             "name": "Notification QA Product", "type": "service",
             "property_account_income_id": cls.income_account.id,
@@ -70,9 +73,7 @@ class TestKabayNotifications(TransactionCase):
         )
 
     def _invoice(self, *, due_date=None, posted=True, move_type="out_invoice"):
-        journal = self.env["account.journal"].with_company(self.company).search([
-            ("company_id", "=", self.company.id), ("type", "=", "sale"),
-        ], limit=1)
+        journal = self.sales_journal
         move = self.env["account.move"].with_company(self.company).create({
             "move_type": move_type, "company_id": self.company.id,
             "journal_id": journal.id, "partner_id": self.partner.id,

@@ -6,19 +6,28 @@
         <field name="inherit_id" ref="kabay_base.view_kabay_apartment_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page string="PERSONAS" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management">
-                    <div class="d-flex justify-content-end">
-                        <button name="action_add_relation" type="object" string="Añadir persona" class="btn-primary"/>
-                    </div>
-                    <field name="relation_ids" context="{'active_test': False}">
-                        <list decoration-muted="state == 'ended'">
+                <page string="PERSONAS RELACIONADAS" groups="kabay_base.group_kabay_manager,kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management">
+                    <p>Agrega aquí los contactos vinculados a esta unidad. Elige su rol y fecha de inicio; luego confirma la relación para habilitar el acceso correspondiente al portal.</p>
+                    <field name="relation_ids" groups="kabay_base.group_kabay_manager" context="{'active_test': False}">
+                        <list editable="bottom" create="1" edit="1" delete="0" decoration-muted="state == 'ended'">
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="role" readonly="state != 'draft'"/>
+                            <field name="date_start" readonly="state != 'draft'"/>
+                            <field name="date_end" readonly="state != 'draft'"/>
+                            <field name="ownership_share" optional="hide" readonly="state != 'draft'" invisible="role != 'owner'"/>
+                            <field name="state"/>
+                            <button name="action_confirm" type="object" string="Confirmar" icon="fa-check" invisible="state != 'draft'"/>
+                            <button name="action_end" type="object" string="Finalizar" icon="fa-stop" invisible="state == 'ended'"/>
+                        </list>
+                    </field>
+                    <field name="relation_ids" groups="kabay_base.group_kabay_finance,kabay_base.group_kabay_reception,kabay_base.group_kabay_maintenance,kabay_base.group_kabay_management" context="{'active_test': False}">
+                        <list create="0" edit="0" delete="0" decoration-muted="state == 'ended'">
                             <field name="partner_id"/>
                             <field name="role"/>
                             <field name="date_start"/>
                             <field name="date_end"/>
                             <field name="ownership_share" optional="hide"/>
                             <field name="state"/>
-                            <button name="action_end" type="object" string="Finalizar" icon="fa-stop" invisible="state == 'ended'"/>
                         </list>
                     </field>
                 </page>

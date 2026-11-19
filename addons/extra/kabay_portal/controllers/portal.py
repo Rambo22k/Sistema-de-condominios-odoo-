@@ -148,6 +148,7 @@ class KabayResidentPortal(CustomerPortal):
         return request.render("kabay_portal.portal_financing", self._layout(
             "kabay_financing", contracts=contracts,
             installment_state_labels=dict(request.env["kabay.financing.installment"]._fields["state"].selection),
+            payment_timing_labels=dict(request.env["kabay.financing.installment"]._fields["payment_timing"].selection),
         ))
 
     @http.route("/my/kabay/profile", type="http", auth="user", website=True, methods=["GET", "POST"])

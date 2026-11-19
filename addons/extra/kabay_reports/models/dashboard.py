@@ -118,7 +118,7 @@ class KabayReportDashboard(models.TransientModel):
             or self.env.user.has_group("kabay_base.group_kabay_manager")
         )
         return has_business_group and all(
-            self.env[model].check_access_rights("read", raise_exception=False)
+            self.env[model].has_access("read")
             for model in ("account.move", "account.payment")
         )
 
@@ -170,7 +170,7 @@ class KabayReportDashboard(models.TransientModel):
 
     def _compute_operations(self, company_domain, condos, buildings, apartments):
         Ticket = self.env["helpdesk.ticket"]
-        if Ticket.check_access_rights("read", raise_exception=False):
+        if Ticket.has_access("read"):
             ticket_domain = [("company_id", "=", self.company_id.id), ("kabay_apartment_id", "!=", False)]
             if condos:
                 ticket_domain.append(("kabay_condominium_id", "in", condos.ids))

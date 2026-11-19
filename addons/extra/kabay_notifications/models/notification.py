@@ -167,7 +167,10 @@ class KabayNotification(models.Model):
         category_enabled = bool(setting[CATEGORY_SETTING[category]])
         preference = OPTIONAL_PREFERENCES.get(event_type)
         preference_enabled = not preference or bool(recipient[preference])
-        eligible_email = bool(recipient.active and recipient.email and not recipient.is_blacklisted)
+        # `is_blacklisted` is restricted to internal users; the outbox can check
+        # this delivery safeguard with elevated read access without exposing it
+        # to a resident portal session.
+        eligible_email = bool(recipient.active and recipient.email and not recipient.sudo().is_blacklisted)
         state = "pending" if category_enabled and preference_enabled and eligible_email else "skipped"
         reason = False
         if not category_enabled:

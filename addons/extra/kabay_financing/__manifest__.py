@@ -2,7 +2,7 @@
     "name": "Kabay Financiamiento",
     "author": "Kabay Group",
     "summary": "Contratos de compra financiada y calendarios de cuotas",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Accounting/Accounting",
     "license": "LGPL-3",
     "depends": ["base", "account", "contacts", "mail", "kabay_base", "kabay_residents"],

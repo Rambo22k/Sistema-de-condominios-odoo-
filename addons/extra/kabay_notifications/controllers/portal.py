@@ -29,5 +29,7 @@ class KabayNotificationPortal(http.Controller):
             except AccessError:
                 error = _("No se pudieron actualizar las preferencias de esta cuenta.")
         return request.render("kabay_notifications.portal_notification_preferences", {
-            "partner": partner, "saved": saved, "error": error,
+            "partner": partner, "kabay_resident": partner,
+            "page_name": "kabay_notifications",
+            "saved": saved, "error": error,
         })

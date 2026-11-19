@@ -163,4 +163,4 @@ class TestKabayReports(TransactionCase):
             "group_ids": [(6, 0, [portal_group.id])],
         })
         dashboard_model = self.env["kabay.report.dashboard"].with_user(user)
-        self.assertFalse(dashboard_model.check_access_rights("read", raise_exception=False))
+        self.assertFalse(dashboard_model.has_access("read"))

@@ -19,8 +19,9 @@
             <div class="container py-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2>Mis depósitos declarados</h2>
-                    <a href="/my/kabay/deposits/new" class="btn btn-primary">Declarar depósito</a>
+                    <a href="/my/kabay/deposits/new" class="btn btn-primary">Reportar pago y adjuntar comprobante</a>
                 </div>
+                <p class="text-muted">Al reportar un pago, adjunta el recibo o comprobante de transferencia. Finanzas verificará el movimiento antes de aplicarlo a tu saldo.</p>
                 <div t-if="not declarations" class="alert alert-info">Aún no hay depósitos declarados.</div>
                 <div t-if="declarations" class="table-responsive">
                     <table class="table table-hover">
@@ -42,7 +43,7 @@
     <template id="portal_deposit_form" name="Declarar depósito Kabay">
         <t t-call="portal.portal_layout">
             <div class="container py-3">
-                <h2>Declarar un depósito</h2>
+                <h2>Reportar un pago</h2>
                 <div t-if="error" class="alert alert-danger" role="alert" t-esc="error"/>
                 <form action="/my/kabay/deposits/new" method="get" class="mb-3">
                     <div class="row g-2 align-items-end">
@@ -64,7 +65,7 @@
                         <div class="col-md-3"><label for="amount" class="form-label">Importe</label><input id="amount" type="number" name="amount" min="0.01" step="0.01" class="form-control" required="required" t-att-value="form_data.get('amount')"/></div>
                         <div class="col-md-6"><label for="bank_name" class="form-label">Banco de origen</label><input id="bank_name" name="bank_name" class="form-control" required="required" t-att-value="form_data.get('bank_name')"/></div>
                         <div class="col-md-6"><label for="reference" class="form-label">Referencia / autorización</label><input id="reference" name="reference" class="form-control" required="required" t-att-value="form_data.get('reference')"/></div>
-                        <div class="col-12"><label for="proof" class="form-label">Comprobante</label><input id="proof" name="proof" type="file" class="form-control" required="required" accept="image/*,.pdf"/><div class="form-text">El comprobante no confirma el pago. Finanzas verificará el movimiento bancario.</div></div>
+                        <div class="col-12"><label for="proof" class="form-label">Comprobante de pago</label><input id="proof" name="proof" type="file" class="form-control" required="required" accept="image/*,.pdf"/><div class="form-text">Adjunta el recibo o comprobante de transferencia en PDF o imagen. Finanzas verificará el movimiento bancario antes de aplicarlo.</div></div>
                         <div class="col-12"><label for="resident_note" class="form-label">Observaciones</label><textarea id="resident_note" name="resident_note" class="form-control" rows="3" t-esc="form_data.get('resident_note', '')"/></div>
                     </div>
                     <h4 class="mt-4">Facturas o cuotas a cubrir</h4>
@@ -98,7 +99,7 @@
                 <div class="card"><div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Apartamento</dt><dd class="col-sm-8" t-esc="declaration.apartment_label"/>
-                        <dt class="col-sm-4">Fecha</dt><dd class="col-sm-8" t-field="declaration.deposit_date"/>
+                        <dt class="col-sm-4">Fecha</dt><dd class="col-sm-8"><span t-field="declaration.deposit_date"/></dd>
                         <dt class="col-sm-4">Importe</dt><dd class="col-sm-8"><span t-field="declaration.amount"/><span t-esc="declaration.currency_id.name" class="ms-1"/></dd>
                         <dt class="col-sm-4">Banco de origen</dt><dd class="col-sm-8" t-esc="declaration.bank_name"/>
                         <dt class="col-sm-4">Referencia</dt><dd class="col-sm-8" t-esc="declaration.reference"/>

@@ -39,6 +39,28 @@ class KabayApartment(models.Model):
             "context": {"default_apartment_id": self.id},
         }
 
+    @api.onchange("building_id")
+    def _onchange_building_id_code(self):
+        """Build a unit code from its tower and local apartment name."""
+        for apartment in self:
+            if apartment.building_id and apartment.name:
+                apartment.code = apartment._make_unit_code(apartment.building_id, apartment.name)
+
+    @api.onchange("name")
+    def _onchange_name_code(self):
+        for apartment in self:
+            prefix = "%s-" % apartment.building_id.code if apartment.building_id else False
+            if apartment.building_id and apartment.name and (
+                not apartment.code or apartment.code.startswith(prefix)
+            ):
+                apartment.code = apartment._make_unit_code(apartment.building_id, apartment.name)
+
+    @api.model
+    def _make_unit_code(self, building, apartment_name):
+        tower_code = (building.code or "").strip()
+        unit_label = "-".join((apartment_name or "").strip().split())
+        return "%s-%s" % (tower_code, unit_label) if tower_code and unit_label else ""
+
     _code_building_uniq = models.Constraint(
         "unique(code, building_id)", "An apartment code must be unique per building."
     )

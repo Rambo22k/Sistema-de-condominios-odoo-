@@ -1,12 +1,12 @@
 # Pendientes para una demo comercial de Kabay Group
 
-Estado resumido para coordinación de la presentación. La instancia local ya cuenta con flujos QA de Portal, avisos, Helpdesk y una línea bancaria simulada. La demostración completa de cobros todavía depende de validaciones y pruebas finales.
+Estado resumido para coordinación de la presentación. La instancia local tiene los diez módulos Kabay instalados y sus flujos cubiertos por pruebas. La base `kabay_dev` actualmente no contiene condominios, residentes, facturas ni movimientos bancarios de QA; el repositorio no incluye datos semilla. Antes de una demostración hay que cargar fixtures QA aprobados. La demostración de cobros también depende de validaciones contables y fiscales.
 
 ## Antes de presentar
 
-1. **Completar identidad del residente QA:** un administrador debe establecer la contraseña en Odoo y comprobar una sesión Portal autenticada.
+1. **Preparar los datos de demo:** cargar registros QA claramente ficticios de compañía, condominio, edificio, unidades y residentes; luego establecer la contraseña del usuario Portal y comprobar una sesión autenticada.
 2. **Validar facturación con Finanzas/contador:** confirmar compañía, cuentas, producto, impuestos y requisitos de documento fiscal. No publicar cargos hasta tener esa decisión.
-3. **Cerrar el recorrido de pagos QA:** usar una factura demo publicada y aprobada, declarar un depósito, verificar la línea sintética, aplicar pago estándar y revisar conciliación/estado. La línea bancaria disponible es ficticia, contabilizada y no conciliada; no representa dinero real.
+3. **Cerrar el recorrido de pagos QA:** usar una factura demo publicada y aprobada, declarar un depósito, verificar una línea bancaria QA cargada expresamente para la prueba, aplicar el pago estándar y revisar la conciliación/estado. Todo movimiento simulado debe identificarse como ficticio; no representa dinero real.
 4. **Revisar acceso del equipo financiero:** confirmar los permisos mínimos para revisar/aplicar depósitos y responder tickets desde el perfil de Finanzas.
 5. **Terminar pruebas de aceptación:** ejecutar las pruebas HttpCase y una regresión dirigida en un entorno de prueba aislado; revisar acceso permitido/denegado, recibos, pagos, reportes y protecciones contables.
 6. **Probar la entrega de correo:** elegir un buzón controlado, comprobar SMTP, cola, plantillas, cron y recepción real. La configuración activa por sí sola no demuestra entrega.

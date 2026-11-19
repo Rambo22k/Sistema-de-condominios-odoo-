@@ -75,7 +75,9 @@ class KabayHelpdeskPortal(CustomerPortal):
         if request.httprequest.method == "POST":
             try:
                 with request.env.cr.savepoint():
-                    ticket = request.env["helpdesk.ticket"].create({
+                    ticket = request.env["helpdesk.ticket"].with_context(
+                        mail_create_nosubscribe=True, mail_notrack=True,
+                    ).create({
                         "name": post.get("name"), "description": post.get("description"),
                         "kabay_apartment_id": int(post.get("apartment_id") or 0),
                         "kabay_category_id": int(post.get("category_id") or 0),

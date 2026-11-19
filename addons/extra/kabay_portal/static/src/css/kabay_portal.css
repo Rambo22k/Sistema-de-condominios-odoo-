@@ -6,3 +6,105 @@
 body:has(.kabay-shell),body:has(.kabay-shell) #wrapwrap,body:has(.kabay-shell) #wrap,body:has(.kabay-shell) .o_portal_wrap{background-color:var(--kabay-bg)!important}
 body:has(.kabay-shell) .o_portal_wrap>.container{background-color:transparent}
 .kabay-shell{background-color:var(--kabay-bg)}
+.o_database_list {
+    --kabay-ink: #17324d;
+    --kabay-teal: #087f8c;
+}
+
+body:has(form.oe_login_form) {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 13% 14%, rgba(255, 255, 255, .9), transparent 22rem),
+        radial-gradient(circle at 88% 82%, rgba(20, 184, 166, .22), transparent 25rem),
+        linear-gradient(135deg, #102a43 0%, #155e75 54%, #0f766e 100%) !important;
+}
+
+body:has(form.oe_login_form) #wrapwrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body:has(form.oe_login_form) #wrapwrap > header {
+    display: none;
+}
+
+body:has(form.oe_login_form) #wrapwrap > main {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.25rem;
+}
+
+body:has(form.oe_login_form) .o_database_list {
+    width: min(100%, 28rem);
+    padding: 1.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .72) !important;
+    border-radius: 1.4rem !important;
+    background: rgba(255, 255, 255, .97) !important;
+    box-shadow: 0 2rem 5rem rgba(4, 20, 35, .32) !important;
+    animation: kabay-login-enter .45s ease-out both;
+}
+
+body:has(form.oe_login_form) .o_database_list::before {
+    content: "KABAY GROUP\A Gestión residencial conectada";
+    display: block;
+    margin: .15rem 0 .9rem;
+    color: #087f8c;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1.8;
+    text-align: center;
+    white-space: pre-line;
+}
+
+body:has(form.oe_login_form) .o_database_list img {
+    display: none;
+}
+
+body:has(form.oe_login_form) .oe_login_form .form-control {
+    min-height: 3.1rem;
+    border: 1px solid #d4e0e8;
+    border-radius: .75rem;
+    background: #f8fbfd;
+}
+
+body:has(form.oe_login_form) .oe_login_form .form-control:focus {
+    border-color: #0f9ba6;
+    background: #fff;
+    box-shadow: 0 0 0 .22rem rgba(15, 155, 166, .15);
+}
+
+body:has(form.oe_login_form) .oe_login_form button[type="submit"] {
+    min-height: 3.1rem;
+    border: 0;
+    border-radius: .75rem;
+    background: linear-gradient(100deg, #087f8c, #0f766e);
+    box-shadow: 0 .65rem 1.3rem rgba(8, 127, 140, .2);
+    font-weight: 700;
+    letter-spacing: .02em;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+body:has(form.oe_login_form) .oe_login_form button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 .9rem 1.5rem rgba(8, 127, 140, .28);
+}
+
+body:has(form.oe_login_form) #bottom {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, .84) !important;
+    background: transparent !important;
+}
+
+@keyframes kabay-login-enter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body:has(form.oe_login_form) .o_database_list { animation: none; }
+}

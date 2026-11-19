@@ -4,6 +4,9 @@ from datetime import date, timedelta
 from odoo import Command, fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
+from odoo.addons.kabay_base.tests.common import (
+    create_kabay_test_company, set_test_partner_accounts, setup_test_company_accounting,
+)
 
 
 @tagged("post_install", "-at_install")
@@ -11,9 +14,9 @@ class TestKabayDeposits(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.company = cls.env["res.company"].search([("name", "=", "Kabay RD - Desarrollo")], limit=1)
-        if not cls.company or cls.company.currency_id.name != "DOP":
-            raise AssertionError("La compañía Kabay RD - Desarrollo en DOP es requisito de esta fase.")
+        cls.company, cls.accounts, cls.sales_journal, cls.bank_journal = create_kabay_test_company(
+            cls.env, "Kabay Deposits Test Company",
+        )
         cls.condominium = cls.env["kabay.condominium"].create({
             "name": "Condominio QA depósitos", "code": "DEP-QA", "company_id": cls.company.id,
             "country_id": cls.company.country_id.id,
@@ -26,6 +29,8 @@ class TestKabayDeposits(TransactionCase):
         })
         cls.partner = cls.env["res.partner"].create({"name": "Residente QA depósitos", "company_type": "person"})
         cls.other_partner = cls.env["res.partner"].create({"name": "Otro residente QA depósitos", "company_type": "person"})
+        set_test_partner_accounts(cls.partner, cls.company, cls.accounts)
+        set_test_partner_accounts(cls.other_partner, cls.company, cls.accounts)
         cls.relation = cls.env["kabay.apartment.relation"].create({
             "partner_id": cls.partner.id, "apartment_id": cls.apartment.id, "role": "owner",
             "date_start": date(2020, 1, 1), "state": "confirmed",
@@ -37,19 +42,7 @@ class TestKabayDeposits(TransactionCase):
             "partner_id": cls.other_partner.id, "apartment_id": cls.apartment2.id, "role": "tenant",
             "date_start": date(2020, 1, 1), "state": "confirmed",
         })
-        cls.income_account = cls.env["account.account"].with_company(cls.company).search([
-            ("company_ids", "in", cls.company.id), ("account_type", "=", "income"),
-        ], limit=1)
-        if not cls.income_account:
-            raise AssertionError("La compañía de QA debe tener una cuenta de ingresos para probar facturas.")
-        cls.sales_journal = cls.env["account.journal"].search([
-            ("company_id", "=", cls.company.id), ("type", "=", "sale"),
-        ], limit=1)
-        cls.bank_journal = cls.env["account.journal"].search([
-            ("company_id", "=", cls.company.id), ("type", "=", "bank"),
-        ], limit=1)
-        if not cls.sales_journal or not cls.bank_journal:
-            raise AssertionError("La compañía de QA requiere diarios de ventas y bancario para estas pruebas.")
+        cls.income_account = cls.accounts["41020100"]
         cls.product = cls.env["product.product"].with_company(cls.company).create({
             "name": "Servicio QA depósitos", "type": "service",
             "property_account_income_id": cls.income_account.id,
@@ -90,12 +83,14 @@ class TestKabayDeposits(TransactionCase):
         apartment = apartment or self.apartment
         partner = partner or self.partner
         company = company or self.company
-        journal = self.env["account.journal"].search([("company_id", "=", company.id), ("type", "=", "sale")], limit=1)
-        account = self.env["account.account"].with_company(company).search([
-            ("company_ids", "in", company.id), ("account_type", "=", "income"),
-        ], limit=1)
-        if not journal or not account:
-            raise AssertionError("La compañía requiere un diario de ventas y una cuenta de ingresos.")
+        if company == self.company:
+            accounts = self.accounts
+            sales_journal = self.sales_journal
+        else:
+            accounts, sales_journal, _bank_journal = setup_test_company_accounting(self.env, company)
+            set_test_partner_accounts(partner, company, accounts)
+        journal = sales_journal
+        account = accounts["41020100"]
         values = {
             "move_type": "out_invoice", "company_id": company.id, "journal_id": journal.id,
             "partner_id": partner.id, "invoice_date": fields.Date.context_today(self),

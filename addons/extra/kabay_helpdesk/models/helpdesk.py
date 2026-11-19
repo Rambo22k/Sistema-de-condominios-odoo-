@@ -34,8 +34,12 @@ class ResCompany(models.Model):
         return companies
 
     def _kabay_ensure_helpdesk_team(self):
-        Team = self.env["helpdesk.team"]
-        Stage = self.env["helpdesk.stage"]
+        # This is company setup performed as part of company creation. The
+        # newly created company may not yet be among the current user's
+        # allowed companies, so regular helpdesk record rules would block the
+        # team/stage initialization even for a Kabay administrator.
+        Team = self.env["helpdesk.team"].sudo()
+        Stage = self.env["helpdesk.stage"].sudo()
         states = [
             ("new", "Nuevo", False), ("review", "En revisión", False),
             ("assigned", "Asignado", False), ("in_progress", "En progreso", False),

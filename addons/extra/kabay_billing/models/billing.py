@@ -198,7 +198,10 @@ class KabayBillingBatch(models.Model):
                         continue
                     company = batch.condominium_id.company_id
                     journal = self.env["account.journal"].search([("company_id", "=", company.id), ("type", "=", "sale")], limit=1) if company else False
-                    product = rule.product_id
+                    # Product income accounts and taxes are company-dependent.
+                    # Resolve them in the billing company's context, which may
+                    # differ from the currently selected company of the user.
+                    product = rule.product_id.with_company(company) if company else rule.product_id
                     account = product.property_account_income_id or product.categ_id.property_account_income_categ_id
                     rule_due_date = rule.get_due_date(batch.period_start, batch.due_date)
                     errors = []
@@ -264,7 +267,7 @@ class KabayBillingBatch(models.Model):
                     raise UserError(_("Se detectó una factura existente; vuelva a preparar el lote."))
                 invoice_lines = []
                 for line in lines:
-                    product = line.fee_rule_id.product_id
+                    product = line.fee_rule_id.product_id.with_company(batch.company_id)
                     account = product.property_account_income_id or product.categ_id.property_account_income_categ_id
                     taxes = product.taxes_id.filtered(lambda t: t.company_id == batch.company_id)
                     invoice_lines.append((0, 0, {"name": line.fee_rule_id.name, "product_id": product.id, "quantity": 1,

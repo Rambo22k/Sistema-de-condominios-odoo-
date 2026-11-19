@@ -8,7 +8,7 @@ class KabayApartment(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "condominium_id, building_id, name, id"
 
-    name = fields.Char(string="Apartamento", required=True, tracking=True)
+    name = fields.Char(string="Nombre o número de unidad", required=True, tracking=True)
     code = fields.Char(string="Código", required=True, copy=False, tracking=True)
     building_id = fields.Many2one(
         "kabay.building", string="Edificio / torre", required=True, ondelete="restrict", index=True, tracking=True

@@ -7,7 +7,7 @@
     "license": "LGPL-3",
     "depends": [
         "base", "account", "account_accountant", "contacts", "mail", "portal",
-        "kabay_base", "kabay_residents", "kabay_billing", "kabay_financing",
+        "kabay_base", "kabay_residents", "kabay_billing", "kabay_financing", "kabay_portal_ui",
     ],
     "data": [
         "security/kabay_deposits_security.xml",

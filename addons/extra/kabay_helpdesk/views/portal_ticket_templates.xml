@@ -8,15 +8,22 @@
         </xpath>
     </template>
     <template id="portal_ticket_list" name="Mis solicitudes residenciales">
-        <t t-call="portal.portal_layout"><div class="container py-3">
+        <t t-call="portal.portal_layout">
+            <t t-set="kabay_resident" t-value="request.env.user.partner_id"/>
+            <t t-set="page_name" t-value="'kabay_tickets'"/>
+            <t t-call="kabay_portal_ui.portal_nav"><div class="container py-3">
             <div class="d-flex justify-content-between align-items-center"><h2>Mis solicitudes</h2><a class="btn btn-primary" href="/my/kabay/tickets/new">Nueva solicitud</a></div>
             <form method="get" action="/my/kabay/tickets" class="mb-3"><select name="state" class="form-select d-inline-block w-auto"><option value="all">Todos los estados</option><option t-foreach="state_options" t-as="item" t-att-value="item[0]" t-att-selected="state == item[0]" t-esc="item[1]"/></select><button class="btn btn-outline-primary ms-2">Filtrar</button></form>
             <div t-if="not tickets" class="alert alert-info">No tiene solicitudes registradas.</div>
             <div class="list-group"><a t-foreach="tickets" t-as="ticket" t-att-href="'/my/kabay/tickets/%s' % ticket.id" class="list-group-item list-group-item-action"><div class="d-flex justify-content-between"><strong><span t-esc="ticket.ticket_ref"/> · <span t-esc="ticket.name"/></strong><span class="badge bg-secondary" t-esc="ticket.kabay_state"/></div><div class="text-muted small"><span t-esc="ticket.kabay_apartment_id.display_name"/> · <span t-esc="ticket.kabay_category_id.display_name"/> · <span t-esc="ticket.create_date"/></div></a></div>
             <t t-call="portal.pager"/></div></t>
+        </t>
     </template>
     <template id="portal_ticket_new" name="Registrar solicitud residencial">
-        <t t-call="portal.portal_layout"><div class="container py-3"><a href="/my/kabay/tickets">← Mis solicitudes</a><h2 class="mt-3">Nueva solicitud</h2>
+        <t t-call="portal.portal_layout">
+            <t t-set="kabay_resident" t-value="request.env.user.partner_id"/>
+            <t t-set="page_name" t-value="'kabay_tickets'"/>
+            <t t-call="kabay_portal_ui.portal_nav"><div class="container py-3"><a href="/my/kabay/tickets">← Mis solicitudes</a><h2 class="mt-3">Nueva solicitud</h2>
             <div t-if="error" class="alert alert-danger" t-esc="error"/>
             <div t-if="not relations" class="alert alert-warning">No hay una relación residencial vigente disponible. Contacte a administración.</div>
             <form t-if="relations" method="post" enctype="multipart/form-data" action="/my/kabay/tickets/new"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -28,9 +35,13 @@
                 <label class="form-label mt-2">Fotos o documentos (hasta 10 MB cada uno)</label><input type="file" name="files" multiple="multiple" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt"/>
                 <button class="btn btn-primary mt-3" t-att-disabled="not categories">Enviar solicitud</button>
             </form></div></t>
+        </t>
     </template>
     <template id="portal_ticket_detail" name="Detalle de solicitud residencial">
-        <t t-call="portal.portal_layout"><div class="container py-3"><a href="/my/kabay/tickets">← Mis solicitudes</a><div t-if="error" class="alert alert-danger mt-3" t-esc="error"/>
+        <t t-call="portal.portal_layout">
+            <t t-set="kabay_resident" t-value="request.env.user.partner_id"/>
+            <t t-set="page_name" t-value="'kabay_tickets'"/>
+            <t t-call="kabay_portal_ui.portal_nav"><div class="container py-3"><a href="/my/kabay/tickets">← Mis solicitudes</a><div t-if="error" class="alert alert-danger mt-3" t-esc="error"/>
             <h2 class="mt-3"><span t-esc="ticket.ticket_ref"/> · <span t-esc="ticket.name"/></h2>
             <div class="text-muted mb-3"><span t-esc="ticket.kabay_state"/> · <span t-esc="ticket.kabay_apartment_id.display_name"/> · <span t-esc="ticket.kabay_category_id.name"/> · Actualizada: <span t-esc="ticket.write_date"/></div>
             <article class="card card-body mb-3"><div t-out="ticket.description"/></article>
@@ -39,5 +50,6 @@
             <form t-if="ticket.kabay_state not in ('closed', 'cancelled')" method="post" enctype="multipart/form-data" t-att-action="'/my/kabay/tickets/%s' % ticket.id" class="mt-3"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><label class="form-label">Su respuesta</label><textarea class="form-control" name="body" rows="4"/><label class="form-label mt-2">Adjuntar archivos (hasta 10 MB cada uno)</label><input type="file" name="files" multiple="multiple" class="form-control" accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt"/><button class="btn btn-primary mt-3">Enviar respuesta</button></form>
             <form t-if="ticket.kabay_state in ('resolved', 'closed')" method="post" t-att-action="'/my/kabay/tickets/%s' % ticket.id" class="mt-3"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><input type="hidden" name="action" value="reopen"/><button class="btn btn-outline-primary">Solicitar reapertura</button></form>
         </div></t>
+        </t>
     </template>
 </odoo>

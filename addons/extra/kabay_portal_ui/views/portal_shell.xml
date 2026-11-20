@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_nav" name="Navegación común del portal Kabay">
+        <div class="kabay-shell" lang="es-DO">
+            <header class="kabay-topbar">
+                <a class="kabay-brand" href="/my/kabay">
+                    <span class="kabay-mark" aria-hidden="true">⌂</span>
+                    <span><b>Kabay Group</b><small>Portal de residentes</small></span>
+                </a>
+                <div class="kabay-user">
+                    <span t-esc="kabay_resident.name"/>
+                    <a href="/my/kabay/profile">Mi perfil</a>
+                    <a href="/web/session/logout?redirect=/web/login">Salir</a>
+                </div>
+            </header>
+            <nav class="kabay-nav" aria-label="Navegación de residentes">
+                <a href="/my/kabay" t-att-class="'active' if page_name == 'kabay_home' else ''">Inicio</a>
+                <a href="/my/kabay/units" t-att-class="'active' if page_name == 'kabay_units' else ''">Mis unidades</a>
+                <a href="/my/kabay/invoices" t-att-class="'active' if page_name == 'kabay_invoices' else ''">Facturas</a>
+                <a href="/my/kabay/financing" t-att-class="'active' if page_name == 'kabay_financing' else ''">Financiamiento</a>
+                <a href="/my/kabay/deposits" t-att-class="'active' if page_name in ('kabay_deposits', 'kabay_deposit_new', 'kabay_deposit_detail') else ''">Depósitos</a>
+                <a href="/my/kabay/notices" t-att-class="'active' if page_name == 'kabay_notices' else ''">Avisos</a>
+                <a href="/my/kabay/tickets" t-att-class="'active' if page_name == 'kabay_tickets' else ''">Solicitudes</a>
+            </nav>
+            <main class="kabay-content"><t t-out="0"/></main>
+            <footer class="kabay-footer">Kabay Group · Gestión residencial</footer>
+        </div>
+    </template>
+</odoo>

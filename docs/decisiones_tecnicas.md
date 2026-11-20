@@ -9,7 +9,7 @@
 - Se usan restricciones SQL para códigos únicos dentro del ámbito de cada padre y validaciones ORM para evitar relaciones cruzadas.
 - Los registros tienen `active` para archivar y conservar historial.
 - Las fotos se guardan como binarios de adjunto privado; el límite de diez se valida en servidor al crear y mover fotos. Se bloquea la fila del apartamento durante el conteo para evitar superar el límite con solicitudes simultáneas.
-- Los grupos Kabay tienen ACL diferenciadas y reglas de compañía. Solo Administración escribe estructura y relaciones; Finanzas, Recepción, Mantenimiento y Gerencia leen. Todos carecen de permiso de eliminación.
+- Los grupos Kabay tienen ACL diferenciadas y reglas de compañía. Administrador incluye los cuatro roles funcionales, para dar acceso consistente a menús y operaciones administrativas de los módulos; los usuarios con roles funcionales independientes conservan solo los permisos de su rol. Las reglas multiempresa limitan todos los registros a las compañías permitidas. Solo Administración escribe estructura y relaciones; ningún rol tiene permiso de eliminación de estructura.
 - Las vistas se expresan como vistas list/form/search estándar, con menús y acciones desde XML.
 
 ## Relaciones de residentes

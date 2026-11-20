@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="portal_notification_nav" inherit_id="kabay_portal.portal_nav" name="Kabay notification preferences nav">
+    <template id="portal_notification_nav" inherit_id="kabay_portal_ui.portal_nav" name="Kabay notification preferences nav">
         <xpath expr="//nav[@class='kabay-nav']/a[@href='/my/kabay/tickets']" position="after">
             <a href="/my/kabay/notifications/preferences">Comunicaciones</a>
         </xpath>
     </template>
     <template id="portal_notification_preferences" name="Resident communication preferences">
         <t t-call="portal.portal_layout">
-            <t t-call="kabay_portal.portal_nav">
+            <t t-call="kabay_portal_ui.portal_nav">
                 <section class="kabay-page-head"><span class="kabay-eyebrow">TU CUENTA</span><h1>Preferencias de comunicaciones</h1><p>Elige qué mensajes opcionales quieres recibir por correo. Las comunicaciones operativas y contables esenciales se mantienen activas.</p></section>
                 <section class="kabay-section kabay-form-panel">
                     <div class="kabay-alert success" t-if="saved">Tus preferencias se guardaron.</div>

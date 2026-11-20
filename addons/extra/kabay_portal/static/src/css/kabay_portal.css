@@ -108,3 +108,15 @@ body:has(form.oe_login_form) #bottom {
 @media (prefers-reduced-motion: reduce) {
     body:has(form.oe_login_form) .o_database_list { animation: none; }
 }
+
+/* Kabay pages provide their own resident header; hide the generic Odoo bar,
+   which otherwise displays the unconfigured "Your logo" placeholder. */
+body:has(.kabay-shell) #wrapwrap > header {
+    display: none !important;
+}
+
+/* The Kabay resident shell has its own navigation and footer. */
+body:has(.kabay-shell) .o_portal_submenu,
+body:has(.kabay-shell) #bottom {
+    display: none !important;
+}

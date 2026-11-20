@@ -45,7 +45,12 @@ class KabayResidentPortal(CustomerPortal):
         return apartment
 
     def _layout(self, page_name, **values):
-        values.update({"page_name": page_name, "kabay_resident": self._resident()})
+        values.update({
+            "page_name": page_name,
+            "kabay_resident": self._resident(),
+            "no_breadcrumbs": True,
+            "no_footer": True,
+        })
         return values
 
     @http.route("/my/kabay", type="http", auth="user", website=True, methods=["GET"])

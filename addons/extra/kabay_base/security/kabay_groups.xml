@@ -1,24 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="group_kabay_manager" model="res.groups">
-        <field name="name">Kabay / Administrador</field>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    <record id="module_category_kabay" model="ir.module.category">
+        <field name="name">Kabay</field>
+        <field name="sequence">35</field>
+    </record>
+    <record id="privilege_kabay_roles" model="res.groups.privilege">
+        <field name="name">Kabay</field>
+        <field name="category_id" ref="module_category_kabay"/>
+        <field name="sequence">35</field>
     </record>
     <record id="group_kabay_finance" model="res.groups">
         <field name="name">Kabay / Finanzas</field>
+        <field name="privilege_id" ref="privilege_kabay_roles"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
     <record id="group_kabay_reception" model="res.groups">
         <field name="name">Kabay / Recepción</field>
+        <field name="privilege_id" ref="privilege_kabay_roles"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
     <record id="group_kabay_maintenance" model="res.groups">
         <field name="name">Kabay / Mantenimiento</field>
+        <field name="privilege_id" ref="privilege_kabay_roles"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
     <record id="group_kabay_management" model="res.groups">
         <field name="name">Kabay / Gerencia</field>
+        <field name="privilege_id" ref="privilege_kabay_roles"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="group_kabay_manager" model="res.groups">
+        <field name="name">Kabay / Administrador</field>
+        <field name="privilege_id" ref="privilege_kabay_roles"/>
+        <!-- The Kabay administrator is the operational super-role. It includes
+             each functional role so its menus, actions and model ACLs stay in
+             sync across all installed Kabay modules. Company record rules
+             continue to restrict records to the user's enabled companies. -->
+        <field name="implied_ids" eval="[
+            (4, ref('base.group_user')),
+            (4, ref('kabay_base.group_kabay_finance')),
+            (4, ref('kabay_base.group_kabay_reception')),
+            (4, ref('kabay_base.group_kabay_maintenance')),
+            (4, ref('kabay_base.group_kabay_management')),
+        ]"/>
     </record>
     <record id="base.group_system" model="res.groups">
         <field name="implied_ids" eval="[(4, ref('kabay_base.group_kabay_manager'))]"/>

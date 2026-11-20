@@ -90,7 +90,7 @@ kabay.apartment.relation
 
 ## Roles y límites de seguridad implementados
 
-`kabay_base` define Administrador, Finanzas, Recepción, Mantenimiento y Gerencia. El administrador puede crear y mantener estructura, pero no eliminar registros. Los otros cuatro roles pueden leer dentro de sus compañías permitidas y no escribir estructura. `kabay_residents` permite escritura solo al administrador; los otros roles tienen lectura. Usuarios de Ajustes heredan el grupo Administrador. Ningún grupo Kabay hereda permisos contables; el acceso a modelos contables se añadirá con cobranza/finanzas cuando esos módulos se implementen.
+`kabay_base` define Administrador, Finanzas, Recepción, Mantenimiento y Gerencia. Administrador implica los cuatro roles funcionales, de modo que sus menús, ACL y permisos de vistas coinciden en todos los módulos. Puede crear y mantener estructura, pero no eliminar registros. Los cuatro roles funcionales por separado pueden leer la estructura dentro de sus compañías permitidas y no escribirla. `kabay_residents` permite escritura de relaciones solo al administrador. Usuarios de Ajustes heredan el grupo Administrador. Finanzas habilita las operaciones contables previstas por los módulos de Kabay; las reglas multiempresa siguen restringiendo registros a las compañías habilitadas para el usuario.
 
 Las compañías de edificios, apartamentos, fotos y relaciones se heredan desde el condominio/unidad. Los contactos globales (`company_id` vacío) se admiten; un contacto asignado a una compañía distinta de la unidad se rechaza.
 

@@ -8,7 +8,7 @@
     "depends": [
         "mail", "account", "portal", "helpdesk", "kabay_base", "kabay_residents",
         "kabay_billing", "kabay_deposits", "kabay_financing", "kabay_notices",
-        "kabay_helpdesk", "kabay_portal",
+        "kabay_helpdesk", "kabay_portal", "kabay_portal_ui",
     ],
     "data": [
         "security/kabay_notifications_security.xml",

@@ -5,7 +5,7 @@
     "version": "19.0.1.0.0",
     "category": "Services/Condominium",
     "license": "LGPL-3",
-    "depends": ["helpdesk", "kabay_base", "kabay_residents"],
+    "depends": ["helpdesk", "portal", "kabay_base", "kabay_residents", "kabay_portal_ui"],
     "data": [
         "security/kabay_helpdesk_security.xml",
         "security/ir.model.access.csv",

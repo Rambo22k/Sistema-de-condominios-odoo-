@@ -262,6 +262,11 @@ class TestKabayNotices(TransactionCase):
         self._publish(notice)
         self.assertEqual(notice.state, "published")
 
+    def test_administration_can_read_contacts_scope_notice(self):
+        notice = self._notice("contacts", target_partner_ids=[Command.set([self.owner.id])])
+        manager_notices = self.env["kabay.notice"].with_user(self.admin)
+        self.assertEqual(manager_notices.search_count([("id", "=", notice.id)]), 1)
+
     def test_22_management_can_read_but_not_modify(self):
         notice = self._notice()
         self._publish(notice)
